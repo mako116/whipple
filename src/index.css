@@ -1,0 +1,17 @@
+@font-face {
+  font-family: 'montserrat';
+  src: url('../../whipple/src/assets/fonts/montserrat/Montserrat-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'montserrat';
+  src: url('../../whipple/src/assets/fonts/montserrat/Montserrat-Medium.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+ body {
+  font-family: 'montserrat', sans-serif;
+}
