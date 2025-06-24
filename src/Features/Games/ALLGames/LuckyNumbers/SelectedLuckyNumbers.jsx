@@ -7,31 +7,35 @@ import WinningModal from '../../../../components/modals/WinningModal';
 export default function SelectedLuckyNumbers() {
   const navigate = useNavigate();
   const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { stake, gameLabel, range, GameName, odds } = userDetails || {};
+  const { stake, gameLabel, range, GameName = 'Lucky Number', odds = '3.333' } = userDetails || {};
 
-  const parsedRange = parseInt(range, 10);
+  // Safely parse the range and provide fallback default (e.g., 10)
+  const parsedRange = Number.isFinite(Number(range)) ? parseInt(range, 10) : 10;
+
   const [selectedNumber, setSelectedNumber] = useState(null);
   const [hasSpun, setHasSpun] = useState(false);
   const [success, setSuccess] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Simulate a winning number
-  const correctNumber = Math.floor(Math.random() * parsedRange) + 1;
+  // Generate winning number on spin
+  const [correctNumber, setCorrectNumber] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    // Set winning number once when component mounts
+    setCorrectNumber(Math.floor(Math.random() * parsedRange) + 1);
+  }, [parsedRange]);
 
   const handleNumberSelect = (num) => {
-    if (hasSpun) return; // Stop further selection if already spun
+    if (hasSpun) return;
 
     setSelectedNumber(num);
     setHasSpun(true);
 
     if (num === correctNumber) {
-      setSuccess(true); // Win
+      setSuccess(true);
     } else {
-      setSuccess(false); // Lose
+      setSuccess(false);
     }
 
     setModalVisible(true);
@@ -61,32 +65,40 @@ export default function SelectedLuckyNumbers() {
       <div className="p-2 space-y-6 m-auto md:w-[600px]">
         <div>
           <h2 className="text-2xl font-semibold mb-1">Select 1 Lucky Number</h2>
-          <p className="text-gray-700 mb-4">{gameLabel} (1–{parsedRange})</p>
+          <p className="text-gray-700 mb-4">{gameLabel || `Choose from 1–${parsedRange}`}</p>
 
           {selectedNumber && (
-            <p className="mb-2">Selected Number: {selectedNumber}</p>
+            <p className="mb-2 text-lg font-medium">
+              Selected Number: <span className="font-bold">{selectedNumber}</span>
+            </p>
           )}
 
-          <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
-            {Array.from({ length: parsedRange }).map((_, i) => {
-              const num = i + 1;
-              const isSel = selectedNumber === num;
-              return (
-                <button
-                  key={num}
-                  onClick={() => handleNumberSelect(num)}
-                  className={`p-2 border rounded ${isSel ? 'bg-blue-600 text-white' : 'bg-white text-gray-800'}`}
-                  disabled={hasSpun} // Prevent further selections after spin
-                >
-                  {num}
-                </button>
-              );
-            })}
-          </div>
+          {parsedRange > 0 ? (
+            <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
+              {Array.from({ length: parsedRange }).map((_, i) => {
+                const num = i + 1;
+                const isSel = selectedNumber === num;
+                return (
+                  <button
+                    key={num}
+                    onClick={() => handleNumberSelect(num)}
+                    className={`p-2 border rounded font-semibold ${
+                      isSel ? 'bg-blue-600 text-white' : 'bg-white text-gray-800'
+                    }`}
+                    disabled={hasSpun}
+                  >
+                    {num}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-red-500 font-medium">Invalid range specified. Please set a valid range.</p>
+          )}
         </div>
 
         {/* Buttons */}
-        {!success && hasSpun && (
+        {hasSpun && success === false && (
           <button
             onClick={handleLosersGame}
             className="bg-[#0A1931] text-white font-semibold rounded-lg px-8 py-3 mx-auto block"
@@ -95,10 +107,10 @@ export default function SelectedLuckyNumbers() {
           </button>
         )}
 
-        {success && (
+        {hasSpun && success === true && (
           <button
             onClick={() => navigate('/games')}
-            className="bg-[#0A1931] text-white cursor-pointer font-semibold rounded-lg px-8 py-3 mx-auto block"
+            className="bg-[#0A1931] text-white font-semibold rounded-lg px-8 py-3 mx-auto block"
           >
             Go Back to Games
           </button>
