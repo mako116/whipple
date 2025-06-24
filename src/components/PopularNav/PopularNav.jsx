@@ -5,7 +5,7 @@ import bg from "../../assets/images/bgims.jpg";
 export default function PopularNav() {
   const links = [
     { href: "/today's-wheel-spin", label: "Today's Wheel's Spin" },
-    { href: "/sport/football/upcoming", label: "Upcoming Correct Scores" },
+    { href: "/correct-score", label: "Upcoming Correct Scores" },
     { href: "/all-color-roulette", label: "Play Color Roulette" },
   ];
 

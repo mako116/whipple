@@ -24,6 +24,11 @@ import PreBetGames from './Features/Pre-BetActivities/TabPanel/ChooseGamePanel';
 import PredictScoresScreen from './Features/Pre-BetActivities/CorrectScores/CorrectScores';
 import PredictMatches from './Features/Pre-BetActivities/Predictmatch/Predictmatch';
 import CorrectScores from './Features/Pre-BetActivities/CorrectScores/CorrectScores';
+import ProfileScreen from './Features/AccountInfo/Profile/ProfileTab';
+import NotificationList from './Features/AccountInfo/Notification/Notification';
+import BankTransfer from './Features/AccountInfo/BankTrsf/BankTransfer';
+import DepositPage from './Features/AccountInfo/DepositPage/DepositTab';
+import WithdrawPage from './Features/AccountInfo/DepositPage/Withdraw';
 // import CorrectScores from './Features/Pre-BetActivities/Predictmatch/Predictmatch';
 // import PredictMatches from './Features/Pre-BetActivities/Predictmatch/Predictmatch';
 // import MainMysteryBox from './Features/Games/ALLGames/mystery box/MainMysteryBox';
@@ -35,7 +40,7 @@ function App() {
     const SelectedWheelSpin = lazy(() => import("./Features/Games/ALLGames/Wheel Spin/SelectedWheelSpin"));
     const MainMysteryBox = lazy(() => import("./Features/Games/ALLGames/mystery box/MainMysteryBox"));
     const MysterySelect = lazy(() => import("./Features/Games/ALLGames/mystery box/SelectedMysteryBox"));
-    const GameBets = lazy(() => import("./Features/Games/ALLGames/Spin da Bottle/SelectedSpinDaBottle"));
+    const GameBets = lazy(() => import("./Features/GameHistory/GameHistory"));
     const SpinBottleMain = lazy(() => import("./Features/Games/ALLGames/Spin da Bottle/MainSpinDaBottle"));
     const SelectedSpinBottle = lazy(() => import("./Features/Games/ALLGames/Spin da Bottle/SelectedSpinDaBottle"));
     const AvailablePublishedGame = lazy(() => import("./Features/AvailableGames/AvaliableGames"));
@@ -89,14 +94,14 @@ function App() {
           <Routes> 
             <Route
               element={
-                <ProtectedRoute>
+                // <ProtectedRoute>
                   <AppLayout />
-                </ProtectedRoute>
+                // </ProtectedRoute>
               }
              >
               <Route
                 index
-                path="/"
+                path="/home"
                 element={
                   // <PageTransition >
                     <Home/>
@@ -351,6 +356,43 @@ function App() {
                   <CorrectScores/>
                 }
               />
+
+              {/* My Account Screen */}
+               <Route
+                path="/my-profile"
+                element={
+                  <ProfileScreen/>
+                }
+              />
+
+               <Route
+                path="/notification"
+                element={
+                  <NotificationList/>
+                }
+              />
+
+               <Route
+                path="/deposit-page"
+                element={
+                  <DepositPage/>
+                }
+              />
+
+               <Route
+                path="/bank-transfer"
+                element={
+                  <BankTransfer/>
+                }
+              />
+               <Route
+                path="/withdraw"
+                element={
+                  <WithdrawPage/>
+                }
+              />
+
+              
               
               
               {/* <Route path="*" element={<PageNotFound />} />  */}

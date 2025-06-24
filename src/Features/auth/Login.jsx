@@ -42,10 +42,10 @@ const { mutate, isLoading } = useLoginUser(async (response) => {
     };
 
 
-  const handleLogin = (e) => {
-        e.preventDefault();
-        
-        mutate(data);
+  const handleLogin = () => {
+        // e.preventDefault();
+         navigate("/home")
+        // mutate(data);
     };
   
 
@@ -60,23 +60,23 @@ const { mutate, isLoading } = useLoginUser(async (response) => {
           label="Email"
           type="email"
           name="email"
-          value={data.email}
-           onChange={handleChange}
+          // value={data.email}
+          //  onChange={handleChange}
            />
 
        <FormInput
         label="Password"
         name="password"
-        value={data.password}
+        // value={data.password}
         type='password'
-        onChange={handleChange}
+        // onChange={handleChange}
         showPassword={showPassword}
         togglePassword={() => setShowPassword(prev => !prev)}
         />
 
         <button
           onClick={handleLogin}
-            disabled={!isFormValid || isLoading}
+            // disabled={!isFormValid || isLoading}
             className={`w-full my-5 transition-all cursor-pointer duration-300 ${isFormValid ? "bg-blue-600 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"} text-white py-3 rounded font-semibold tracking-wide`}
           >
           {isLoading ? 'Loading...' : 'Login'}
@@ -85,7 +85,7 @@ const { mutate, isLoading } = useLoginUser(async (response) => {
         <div className="text-center mt-4 text-sm">
           Don't have an account?{' '}
           <Link
-          to={'/signup'}
+          to={'/login'}
             // onClick={() => navigate('/signup')}
             className="text-blue-600 font-bold hover:underline"
           >

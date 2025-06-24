@@ -1,14 +1,17 @@
+import { AlertCircle, History } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { BiNotification } from "react-icons/bi";
+import { FaCashRegister } from "react-icons/fa";
 import { FiUser, FiLogOut, FiClipboard, FiGift, FiBell } from "react-icons/fi";
+import { IoCash } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
 const MENU = [
-  { icon: <FiClipboard />, label: "My Account Info", to: "/account" },
-     { icon: <FiGift />, label: "Notification", to: "/gifts" },
-    { icon: <FiGift />, label: "Deposit", to: "/gifts" },
-    { icon: <FiGift />, label: "Withdraw", to: "/gifts" },
-    { icon: <FiGift />, label: "Transactions", to: "/gifts" },
-      { icon: <FiGift />, label: "BetHistory", to: "/bet-history" },
+  { icon: <FiClipboard />, label: "My Account Info", to: "/my-profile" },
+     { icon: <BiNotification />, label: "Notification", to: "/notification" },
+    { icon: <FaCashRegister />, label: "Deposit", to: "/deposit-page" },
+    { icon: <IoCash />, label: "Withdraw", to: "/withdraw" },
+       { icon: <History />, label: "BetHistory", to: "/bet-history" },
   { icon: <FiLogOut />, label: "Logout", to: "/logout" },
 ];
 
