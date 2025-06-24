@@ -44,7 +44,7 @@ const { mutate, isLoading } = useLoginUser(async (response) => {
 
   const handleLogin = () => {
         // e.preventDefault();
-         navigate("/home")
+         navigate("/")
         // mutate(data);
     };
   
