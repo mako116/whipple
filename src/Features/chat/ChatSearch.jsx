@@ -39,7 +39,7 @@ export default function ChatSearch() {
   );
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pt-[30px]">
       <div className="bg-blue-400 p-4 text-white font-semibold text-lg">Messages</div>
 
       <div className="p-4">

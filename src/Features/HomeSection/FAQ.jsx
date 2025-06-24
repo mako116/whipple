@@ -67,7 +67,7 @@ const FaqPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8">
+    <div className="min-h-screen mt-[20px] bg-gray-100 p-4 md:p-8">
       <h1 className="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h1>
 
       <div className="max-w-3xl mx-auto space-y-4">

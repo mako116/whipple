@@ -30,7 +30,7 @@ export default function ChatScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 flex flex-col">
+    <div className="min-h-screen pt-[30px] bg-gray-200 flex flex-col">
       {/* Header */}
       <div className="flex items-center bg-white p-4 shadow">
         <button onClick={() => navigate(-1)} className="mr-3">
