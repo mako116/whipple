@@ -13,11 +13,11 @@ const SelectedWheelSpin = () => {
   const lastResultWasWin = useRef(null);
 
   const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { odds = '3.333', GameName = 'Wheel Spin' } = userDetails || {};
+  const { odds = '3.333', GameName = 'Wheel Spin',stake } = userDetails || {};
 
   const navigate = useNavigate();
 
-  const [totalInput, setTotalInput] = useState('');
+  // const [totalInput, setTotalInput] = useState('');
   // const [loading, setLoading] = useState(false);
   const [winningNumbers, setWinningNumbers] = useState([]);
   const [showResult, setShowResult] = useState(false);
@@ -72,7 +72,7 @@ const SelectedWheelSpin = () => {
         navigate('/games');
       } else {
         setUserDetails({
-          stake: totalInput,
+          stake,
           odds,
           gameLabel: winningNumbers.join(', '),
           GameName,

@@ -1,24 +1,18 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatCurrency } from '../../../../utlis/FormatAmount';
 import { AuthContext } from '../../../../context/authContext';
 import LosingModal from '../../../../components/modals/LosersModal';
 import WinningModal from '../../../../components/modals/WinningModal';
-// import LosingModal from '../../../../components/modals/LosingModal';
-// import WinningModal from '../../../../components/modals/WinningModal';
 
 export default function SelectedLuckyNumbers() {
   const navigate = useNavigate();
-  const { userDetails ,setUserDetails} = useContext(AuthContext);
-  const {  gameLabel, range, GameName, selected,odds } = userDetails || {};
+  const { userDetails, setUserDetails } = useContext(AuthContext);
+  const { stake,gameLabel, range, GameName, selected, odds } = userDetails || {};
 
   const parsedRange = parseInt(range, 10);
-  // const parsedTotalOdds = parseFloat(totalOdds);
   const parsedSelectedCount = selected ? selected.split(',').length : 0;
 
   const [selectedNumbers, setSelectedNumbers] = useState([]);
-  const [stakeAmount, setStakeAmount] = useState('');
-  const [isInputFocused, setIsInputFocused] = useState(false);
   const [hasSpun, setHasSpun] = useState(false);
   const [success, setSuccess] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -26,42 +20,32 @@ export default function SelectedLuckyNumbers() {
   // Simulate a winning number
   const correctNumber = Math.floor(Math.random() * parsedRange) + 1;
 
-  const handleNumberSelect = num => {
-    setSelectedNumbers(prev =>
-      prev.includes(num)
-        ? prev.filter(n => n !== num)
-        : prev.length < parsedSelectedCount
-        ? [...prev, num]
-        : prev
-    );
-  };
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const stake = parseInt(stakeAmount || '0', 10);
-  const admissionFee = Math.round(stake * 0.25);
-  const totalAmount = stake + admissionFee;
+  const handleNumberSelect = (num) => {
+    setSelectedNumbers((prev) => {
+      const updatedSelection = prev.includes(num)
+        ? prev.filter((n) => n !== num)
+        : prev.length < parsedSelectedCount
+        ? [...prev, num]
+        : prev;
 
-  const isPublishDisabled =
-    selectedNumbers.length !== parsedSelectedCount || isNaN(stake) || stake <= 0;
+      // If selection is complete, auto-check for win/lose
+      if (updatedSelection.length === parsedSelectedCount) {
+        if (updatedSelection.includes(correctNumber)) {
+          setSuccess(true); // Win
+        } else {
+          setSuccess(false); // Lose
+        }
 
-  const handlePublish = () => {
-    if (isPublishDisabled) {
-      alert(`Select exactly ${parsedSelectedCount} number(s) and enter a valid stake.`);
-      return;
-    }
+        setHasSpun(true);
+        setModalVisible(true);
+      }
 
-    // Simulate win/lose by checking if the selected numbers contain the correctNumber
-    if (selectedNumbers.includes(correctNumber)) {
-      setSuccess(true); // Win
-    } else {
-      setSuccess(false); // Lose
-    }
-
-    setHasSpun(true);
-    setModalVisible(true);
+      return updatedSelection;
+    });
   };
 
   const closeModal = () => {
@@ -69,14 +53,14 @@ export default function SelectedLuckyNumbers() {
   };
 
   const handleLosersGame = () => {
-     setUserDetails({
-      stake,
+    setUserDetails({
+      stake, // stake removed
       odds,
       gameLabel,
       GameName,
       isGameLost: true,
     });
-    navigate("/losers-games");
+    navigate('/losers-games');
   };
 
   return (
@@ -87,8 +71,12 @@ export default function SelectedLuckyNumbers() {
 
       <div className="p-2 space-y-6 m-auto md:w-[600px]">
         <div>
-          <h2 className="text-2xl font-semibold mb-1">Select exactly {parsedSelectedCount}</h2>
-          <p className="text-gray-700 mb-4">{gameLabel} (1–{parsedRange})</p>
+          <h2 className="text-2xl font-semibold mb-1">
+            Select exactly {parsedSelectedCount}
+          </h2>
+          <p className="text-gray-700 mb-4">
+            {gameLabel} (1–{parsedRange})
+          </p>
           {selectedNumbers.length > 0 && (
             <p className="mb-2">Selected: {selectedNumbers.join(', ')}</p>
           )}
@@ -101,45 +89,13 @@ export default function SelectedLuckyNumbers() {
                   key={num}
                   onClick={() => handleNumberSelect(num)}
                   className={`p-2 border rounded ${isSel ? 'bg-blue-600 text-white' : 'bg-white text-gray-800'}`}
+                  disabled={hasSpun} // Prevent further selections after spin
                 >
                   {num}
                 </button>
               );
             })}
           </div>
-        </div>
-
-        <div className="bg-white p-4 rounded shadow-md">
-          <h3 className="font-semibold mb-2">Set Stake Amount</h3>
-          <input
-            type="text"
-            value={isInputFocused ? stakeAmount : formatCurrency(stakeAmount)}
-            onFocus={() => setIsInputFocused(true)}
-            onBlur={() => setIsInputFocused(false)}
-            onChange={e => {
-              const raw = e.target.value.replace(/[₦,]/g, '');
-              if (!isNaN(Number(raw))) setStakeAmount(raw);
-            }}
-            placeholder="Enter total amount"
-            className="w-full p-2 border rounded mb-4"
-          />
-
-          {(isInputFocused || stakeAmount) && (
-            <div className="bg-gray-100 p-3 rounded">
-              <div className="flex justify-between mb-1">
-                <span>Stake Amount:</span>
-                <span>{formatCurrency(stake)}</span>
-              </div>
-              <div className="flex justify-between mb-1">
-                <span>Admission Fee (25%):</span>
-                <span>{formatCurrency(admissionFee)}</span>
-              </div>
-              <div className="flex justify-between font-semibold">
-                <span>Total:</span>
-                <span>{formatCurrency(totalAmount)}</span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Buttons */}
@@ -158,16 +114,6 @@ export default function SelectedLuckyNumbers() {
             className="bg-[#0A1931] text-white cursor-pointer font-semibold rounded-lg px-8 py-3 mx-auto block"
           >
             Go Back to Games
-          </button>
-        )}
-
-        {!hasSpun && (
-          <button
-            onClick={handlePublish}
-            disabled={isPublishDisabled}
-            className={`w-full py-3 font-semibold text-white rounded ${isPublishDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
-          >
-            Publish Game
           </button>
         )}
       </div>

@@ -29,6 +29,12 @@ import NotificationList from './Features/AccountInfo/Notification/Notification';
 import BankTransfer from './Features/AccountInfo/BankTrsf/BankTransfer';
 import DepositPage from './Features/AccountInfo/DepositPage/DepositTab';
 import WithdrawPage from './Features/AccountInfo/DepositPage/Withdraw';
+import ReferAndEarn from './Features/AccountInfo/refer/Refer';
+import Security from './Features/AccountInfo/Security/SercurityPassword';
+import Support from './Features/AccountInfo/support/Support';
+import ChatSearch from './Features/chat/ChatSearch';
+import ChatScreen from './Features/chat/ChatMessage';
+import FaqPage from './Features/HomeSection/FAQ';
 // import CorrectScores from './Features/Pre-BetActivities/Predictmatch/Predictmatch';
 // import PredictMatches from './Features/Pre-BetActivities/Predictmatch/Predictmatch';
 // import MainMysteryBox from './Features/Games/ALLGames/mystery box/MainMysteryBox';
@@ -256,7 +262,7 @@ function App() {
                 }
               />
 
-               <Route
+                <Route
                 path="/selected-wheel-spin"
                 element={
                   <SelectedWheelSpin/>
@@ -392,6 +398,47 @@ function App() {
                 }
               />
 
+               <Route
+                path="/invite-user"
+                element={
+                  <ReferAndEarn/>
+                }
+              />
+
+               <Route
+                path="/security-password"
+                element={
+                  <Security/>
+                }
+              />
+
+               <Route
+                path="/support"
+                element={
+                  <Support/>
+                }
+              /> 
+
+               <Route
+                path="/chat"
+                element={
+                  <ChatSearch/>
+                }
+              /> 
+
+               <Route
+                path="/chat-message/:id"
+                element={
+                  <ChatScreen/>
+                }
+              /> 
+
+              <Route
+                path="/faq"
+                element={
+                  <FaqPage/>
+                }
+              /> 
               
               
               

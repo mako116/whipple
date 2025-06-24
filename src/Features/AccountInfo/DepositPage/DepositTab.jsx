@@ -19,7 +19,7 @@ export default function DepositPage() {
   return (
     <>
  
-      <div className="p-5 max-w-3xl mx-auto bg-gray-100">
+      <div className="p-5 mt-[20px] max-w-3xl mx-auto bg-gray-100">
         <div className="flex mb-5  rounded-lg">
           <button
             onClick={() => setActiveTab('normal')}

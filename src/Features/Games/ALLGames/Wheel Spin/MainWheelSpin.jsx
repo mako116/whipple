@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext, useEffect } from 'react';
+import React, { useState,  useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useAnimation } from 'framer-motion';
   // import CustomInput from '../../../components/Input/CustomInput';
@@ -56,7 +56,7 @@ const MainWheelSpin = () => {
         stake: stake.toFixed(2),
         odds: formattedOdds,
         gameLabel: `${winningNumbers.join(', ')}`,
-        GameName,
+        GameName: 'Wheel Spin',
         range,
         result: gameLabel,
       });

@@ -6,7 +6,7 @@ export default function BankTransfer({ selectedBank, setSelectedBank, banks }) {
   const selected = banks.find((b) => b.id === selectedBank);
 
   return (
-    <div className="space-y-6 bg-gray-100">
+    <div className="space-y-6 mt-5 bg-gray-100">
       <p className="mb-2 font-semibold text-gray-800">Select a Bank</p>
 
       <div className="flex flex-wrap gap-4">
@@ -14,11 +14,11 @@ export default function BankTransfer({ selectedBank, setSelectedBank, banks }) {
           <button
             key={bank.id}
             onClick={() => setSelectedBank(bank.id)}
-            className={`w-[44%] h-24 border rounded-lg overflow-hidden ${
+            className={`w-[100px] h-[60px] border rounded-lg overflow-hidden ${
               selectedBank === bank.id ? 'border-blue-700' : 'border-gray-300'
             }`}
           >
-            <img src={bank.logo} alt={bank.name} className="w-full h-full object-cover" />
+            <img src={bank.logo} alt={bank.name} className="w-full h-full object-fill " />
           </button>
         ))}
       </div>

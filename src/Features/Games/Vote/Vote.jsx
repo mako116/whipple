@@ -70,8 +70,8 @@ export default function Vote() {
 
       case "wheel spin":
         navigate("/selected-wheel-spin", {
-          state: { stake, odds, gameLabel, GameName, range, selected },
-        });
+          state: { stake, odds,  GameName, },
+        }); 
         break;
 
       case "spin the bottle":

@@ -1,18 +1,23 @@
-import { AlertCircle, History } from "lucide-react";
+import { AlertCircle, History, Users } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { BiNotification } from "react-icons/bi";
 import { FaCashRegister } from "react-icons/fa";
 import { FiUser, FiLogOut, FiClipboard, FiGift, FiBell } from "react-icons/fi";
 import { IoCash } from "react-icons/io5";
+import { MdSecurityUpdate, MdSupport } from "react-icons/md";
 import { Link } from "react-router-dom";
 
 const MENU = [
-  { icon: <FiClipboard />, label: "My Account Info", to: "/my-profile" },
-     { icon: <BiNotification />, label: "Notification", to: "/notification" },
+    { icon: <FiClipboard />, label: "My Account Info", to: "/my-profile" },
+    { icon: <BiNotification />, label: "Notification", to: "/notification" },
     { icon: <FaCashRegister />, label: "Deposit", to: "/deposit-page" },
     { icon: <IoCash />, label: "Withdraw", to: "/withdraw" },
-       { icon: <History />, label: "BetHistory", to: "/bet-history" },
-  { icon: <FiLogOut />, label: "Logout", to: "/logout" },
+    { icon: <Users />, label: "Refer and Earn", to: "/invite-user" },
+    { icon: <MdSecurityUpdate />, label: "Security", to: "/security-password" },
+    { icon: <MdSupport />, label: "support", to: "/support" },
+
+    { icon: <FiLogOut />, label: "Logout", to: "/logout" },
+
 ];
 
 export default function AccountMenu() {

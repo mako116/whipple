@@ -6,7 +6,7 @@ export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState('Personal');
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen pt-[20px] bg-gray-50">
  
       <div className="max-w-3xl mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6 text-blue-700">Profile</h1>

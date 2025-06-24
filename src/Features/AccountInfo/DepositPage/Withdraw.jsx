@@ -13,7 +13,7 @@ export default function WithdrawPage() {
   const handleClear = () => setAmount('');
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-lg">
+    <div className="max-w-md mx-auto mt-[30px] p-6 bg-white rounded-xl shadow-lg">
       <label className="mb-3 block text-gray-700 font-semibold text-lg font-montserratMeduim">
         Withdraw Amount (₦)
       </label>

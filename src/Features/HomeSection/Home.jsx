@@ -5,6 +5,9 @@ import AvailablePublishedGame from '../AvailableGames/AvaliableGames';
 import { useNavigate } from 'react-router-dom';
 import LosersGames from '../LostGames/LostGames';
 import bg from "../../assets/images/bgims.jpg";
+import FloatingMessage from '../chat/FloatingChat';
+import WhippleFooter from './Footer';
+import HowToPlayCard from './HowToPLay';
   
 const HomeScreen = () => {
   const navigate = useNavigate();
@@ -54,9 +57,13 @@ const HomeScreen = () => {
 
         {/* Features */}
         <WinnersPrizeTicker />
+        {/* How to play */}
+        <HowToPlayCard/>
+        {/* footer */}
+        <WhippleFooter/>
       </div>
 
-      {/* <FloatingMessage /> */}
+      <FloatingMessage />
     </div>
   );
 };
