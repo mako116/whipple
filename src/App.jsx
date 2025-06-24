@@ -290,7 +290,7 @@ function App() {
                 element={
                   <ColorRouletteGame2/>
                 }
-              />
+              /> 
 
               <Route
                 path="/selected-color-roulette2"

@@ -15,7 +15,7 @@ const GameDetailsWithOutVote = () => {
   const handleContinue = () => {
     switch (normalizedGameName) {
       case 'color roulette2':
-        navigate('/games/category/becomethehouse/colorRoulette2/selectedColor2', {
+        navigate('/selected-color-roulette2', {
           state: {
             stake: stake?.toString(),
             odds,

@@ -74,7 +74,7 @@ export default function CreateLuckyNumbers() {
           {selectedNumbers.length > 0 && (
             <p className="mb-2">Selectedsd: {selectedNumbers.join(', ')}</p>
           )}
-          <div className="grid grid-cols-10 gap-2">
+          <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
             {Array.from({ length: parsedRange }).map((_, i) => {
               const num = i + 1;
               const isSel = selectedNumbers.includes(num);
@@ -83,7 +83,7 @@ export default function CreateLuckyNumbers() {
                   key={num}
                   onClick={() => handleNumberSelect(num)}
                   className={`
-                    p-2 border rounded
+                    p-2 border rounded text-[14px]
                     ${isSel ? 'bg-blue-600 text-white' : 'bg-white text-gray-800'}
                   `}
                 >

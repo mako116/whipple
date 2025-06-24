@@ -1,7 +1,6 @@
-import React, { useState,  useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useAnimation } from 'framer-motion';
-  // import CustomInput from '../../../components/Input/CustomInput';
 import { AuthContext } from '../../../../context/authContext';
 import FormInput from '../../../../components/Input/FormInput';
 
@@ -16,10 +15,13 @@ const MainWheelSpin = () => {
   const [loading, setLoading] = useState(false);
   const [winningNumbers, setWinningNumbers] = useState([]);
   const [showResult, setShowResult] = useState(false);
+  const [rotationCount, setRotationCount] = useState(0);
+
+  const controls = useAnimation();
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const controls = useAnimation();
 
   const totalAmount = parseFloat(totalInput) || 0;
   const admissionFee = totalAmount * 0.25;
@@ -28,9 +30,16 @@ const MainWheelSpin = () => {
   const spinWheel = async () => {
     setShowResult(false);
 
+    const nextRotation = (rotationCount + 1) * 1080; // Always rotate a full 1080° more
+
+    setRotationCount((prev) => prev + 1);
+
     await controls.start({
-      rotate: 1080 + Math.floor(Math.random() * 360),
-      transition: { duration: 3, ease: 'easeOut' }
+      rotate: nextRotation,
+      transition: {
+        duration: 3,
+        ease: 'easeOut',
+      },
     });
 
     const generatedNumbers = [];
@@ -56,7 +65,7 @@ const MainWheelSpin = () => {
         stake: stake.toFixed(2),
         odds: formattedOdds,
         gameLabel: `${winningNumbers.join(', ')}`,
-        GameName: 'Wheel Spin',
+        GameName,
         range,
         result: gameLabel,
       });
@@ -66,13 +75,16 @@ const MainWheelSpin = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-       <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-4">Create Your Game</h1>
-        <p className="text-gray-600 mb-6">Spin the wheel and set your total stake as The House</p>
+        <p className="text-gray-600 mb-6">
+          Spin the wheel and set your total stake as The House
+        </p>
 
         <div className="flex flex-col items-center justify-center">
           <motion.div
             animate={controls}
+            initial={{ rotate: 0 }}
             className="w-[255px] h-[255px] rounded-full border-8 border-blue-600 flex items-center justify-center relative overflow-hidden"
           >
             <div className="w-32 h-32 rounded-full flex items-center justify-center select-none text-center">
@@ -124,7 +136,6 @@ const MainWheelSpin = () => {
                 setTotalInput(e.target.value);
                 setIsButtonDisabled(!e.target.value || !showResult || isNaN(Number(e.target.value)));
               }}
-              // className="w-full p-2 border border-gray-400 rounded"
             />
           </div>
 
@@ -141,7 +152,11 @@ const MainWheelSpin = () => {
             <button
               onClick={handlePublishGame}
               disabled={isButtonDisabled}
-              className={`w-full py-3 rounded text-white ${isButtonDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-purple-700 hover:bg-purple-800'}`}
+              className={`w-full py-3 rounded text-white ${
+                isButtonDisabled
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-purple-700 hover:bg-purple-800'
+              }`}
             >
               {loading ? 'Publishing...' : 'Publish Game'}
             </button>
@@ -150,7 +165,9 @@ const MainWheelSpin = () => {
           <div className="mt-8 bg-white p-6 rounded shadow">
             <h2 className="text-xl font-bold mb-2">How It Works</h2>
             <p className="text-gray-700">
-              Spin the wheel to randomly select three winning numbers from 1–10. Players will bet against your result with odds of 3.333. If they guess any of the winning numbers, they win. If not, you win.
+              Spin the wheel to randomly select three winning numbers from 1–10. Players will bet
+              against your result with odds of 3.333. If they guess any of the winning numbers, they
+              win. If not, you win.
             </p>
           </div>
         </div>

@@ -13,8 +13,8 @@ const colors = [
 
 const ColorRouletteGame2 = () => {
   const controls = useAnimation();
-    const { setUserDetails } = useContext(AuthContext);
-  const [activeColors, setActiveColors] = useState([]);
+  const { setUserDetails } = useContext(AuthContext);
+  const [activeColor, setActiveColor] = useState(null);  // Single string, not array
   const [loading, setLoading] = useState(false);
   const [stake, setStake] = useState('');
   const [admissionFee, setAdmissionFee] = useState(0);
@@ -23,10 +23,10 @@ const ColorRouletteGame2 = () => {
   const [isPublishEnabled, setIsPublishEnabled] = useState(false);
   const navigate = useNavigate();
 
-   useEffect(() => {
-          window.scrollTo(0, 0);
-        }, []);
-        
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const handleStakeChange = (value) => {
     setStake(value);
     const calculatedAdmissionFee = parseFloat(value) * 0.25;
@@ -40,30 +40,31 @@ const ColorRouletteGame2 = () => {
     setLoading(true);
     await controls.start({ rotate: 360 * 4, transition: { duration: 2, ease: 'easeInOut' } });
     controls.set({ rotate: 0 });
+
     const randomIndex = Math.floor(Math.random() * colors.length);
-    const selected = [colors[randomIndex].id];
-    setActiveColors(selected);
+    const selectedId = colors[randomIndex].id; // single string
+    setActiveColor(selectedId);
+
     setLoading(false);
   };
 
   const handlePublish = () => {
-    if (activeColors.length !== 1) {
-      alert('Please spin the wheel and let one color be selected.');
+    if (!activeColor) {
+      alert('Please spin the wheel and select one color.');
       return;
     }
 
- 
+    const selectedColorLabel = colors.find((c) => c.id === activeColor)?.label || activeColor;
 
-    navigate('/available-games')
-     setUserDetails({
-         stake,
-        odds: '4x',
-        gameLabel: activeColors.join(','),
-        GameName: 'Color Roulette',
-        selected: activeColors.join(','),
-   
+    navigate('/available-games');
+    setUserDetails({
+      stake,
+      odds: '4x',
+      gameLabel: selectedColorLabel,
+      GameName: 'Color Roulette2',
+      selected: selectedColorLabel,
     });
-  };
+  }; 
 
   return (
     <div className="min-h-screen bg-[#EEF6FF] p-4 flex flex-col items-center">
@@ -72,23 +73,41 @@ const ColorRouletteGame2 = () => {
       <div className="w-64 h-64 border-4 border-gray-300 rounded-full mb-10 relative overflow-hidden">
         <motion.div animate={controls} className="w-full h-full origin-center">
           <svg className="w-full h-full" viewBox="0 0 100 100">
-            <path d="M50 50L70 5L195 5Z" fill="#EA384C" opacity={activeColors.length === 0 || activeColors.includes('red') ? 1 : 0.4} />
-            <path d="M50 50L101 50L95 90Z" fill="#0EA5E9" opacity={activeColors.length === 0 || activeColors.includes('blue') ? 1 : 0.4} />
-            <path d="M50 50L48 100L5 95Z" fill="#22C55E" opacity={activeColors.length === 0 || activeColors.includes('green') ? 1 : 0.4} />
-            <path d="M50 50L0 50L5 5Z" fill="#EAB308" opacity={activeColors.length === 0 || activeColors.includes('yellow') ? 1 : 0.4} />
+            <path
+              d="M50 50L70 5L195 5Z"
+              fill="#EA384C"
+              opacity={!activeColor || activeColor === 'red' ? 1 : 0.4}
+            />
+            <path
+              d="M50 50L101 50L95 90Z"
+              fill="#0EA5E9"
+              opacity={!activeColor || activeColor === 'blue' ? 1 : 0.4}
+            />
+            <path
+              d="M50 50L48 100L5 95Z"
+              fill="#22C55E"
+              opacity={!activeColor || activeColor === 'green' ? 1 : 0.4}
+            />
+            <path
+              d="M50 50L0 50L5 5Z"
+              fill="#EAB308"
+              opacity={!activeColor || activeColor === 'yellow' ? 1 : 0.4}
+            />
           </svg>
         </motion.div>
         <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-gray-800 rounded-full transform -translate-x-1/2 -translate-y-1/2 z-10"></div>
         <div className="absolute top-0 left-1/2 w-4 h-10 bg-gray-800 rounded-b transform -translate-x-1/2"></div>
       </div>
 
-      {activeColors.length === 1 && (
+      {activeColor && (
         <div className="flex items-center mb-6">
-          {colors.filter(c => activeColors.includes(c.id)).map(c => (
-            <div key={c.id} className="px-6 py-3 rounded text-white font-semibold" style={{ backgroundColor: c.hex }}>
-              {c.label}
-            </div>
-          ))}
+          {/* Show only the one selected color */}
+          <div
+            className="px-6 py-3 rounded text-white font-semibold"
+            style={{ backgroundColor: colors.find((c) => c.id === activeColor)?.hex }}
+          >
+            {colors.find((c) => c.id === activeColor)?.label}
+          </div>
         </div>
       )}
 

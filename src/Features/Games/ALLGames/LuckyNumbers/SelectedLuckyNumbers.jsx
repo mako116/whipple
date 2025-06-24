@@ -7,12 +7,10 @@ import WinningModal from '../../../../components/modals/WinningModal';
 export default function SelectedLuckyNumbers() {
   const navigate = useNavigate();
   const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { stake,gameLabel, range, GameName, selected, odds } = userDetails || {};
+  const { stake, gameLabel, range, GameName, odds } = userDetails || {};
 
   const parsedRange = parseInt(range, 10);
-  const parsedSelectedCount = selected ? selected.split(',').length : 0;
-
-  const [selectedNumbers, setSelectedNumbers] = useState([]);
+  const [selectedNumber, setSelectedNumber] = useState(null);
   const [hasSpun, setHasSpun] = useState(false);
   const [success, setSuccess] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -25,27 +23,18 @@ export default function SelectedLuckyNumbers() {
   }, []);
 
   const handleNumberSelect = (num) => {
-    setSelectedNumbers((prev) => {
-      const updatedSelection = prev.includes(num)
-        ? prev.filter((n) => n !== num)
-        : prev.length < parsedSelectedCount
-        ? [...prev, num]
-        : prev;
+    if (hasSpun) return; // Stop further selection if already spun
 
-      // If selection is complete, auto-check for win/lose
-      if (updatedSelection.length === parsedSelectedCount) {
-        if (updatedSelection.includes(correctNumber)) {
-          setSuccess(true); // Win
-        } else {
-          setSuccess(false); // Lose
-        }
+    setSelectedNumber(num);
+    setHasSpun(true);
 
-        setHasSpun(true);
-        setModalVisible(true);
-      }
+    if (num === correctNumber) {
+      setSuccess(true); // Win
+    } else {
+      setSuccess(false); // Lose
+    }
 
-      return updatedSelection;
-    });
+    setModalVisible(true);
   };
 
   const closeModal = () => {
@@ -54,7 +43,7 @@ export default function SelectedLuckyNumbers() {
 
   const handleLosersGame = () => {
     setUserDetails({
-      stake, // stake removed
+      stake,
       odds,
       gameLabel,
       GameName,
@@ -71,19 +60,17 @@ export default function SelectedLuckyNumbers() {
 
       <div className="p-2 space-y-6 m-auto md:w-[600px]">
         <div>
-          <h2 className="text-2xl font-semibold mb-1">
-            Select exactly {parsedSelectedCount}
-          </h2>
-          <p className="text-gray-700 mb-4">
-            {gameLabel} (1–{parsedRange})
-          </p>
-          {selectedNumbers.length > 0 && (
-            <p className="mb-2">Selected: {selectedNumbers.join(', ')}</p>
+          <h2 className="text-2xl font-semibold mb-1">Select 1 Lucky Number</h2>
+          <p className="text-gray-700 mb-4">{gameLabel} (1–{parsedRange})</p>
+
+          {selectedNumber && (
+            <p className="mb-2">Selected Number: {selectedNumber}</p>
           )}
-          <div className="grid grid-cols-10 gap-2">
+
+          <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
             {Array.from({ length: parsedRange }).map((_, i) => {
               const num = i + 1;
-              const isSel = selectedNumbers.includes(num);
+              const isSel = selectedNumber === num;
               return (
                 <button
                   key={num}

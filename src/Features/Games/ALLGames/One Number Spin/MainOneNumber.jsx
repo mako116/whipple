@@ -8,7 +8,6 @@ import Button from '../../../../components/button/gamebutton';
 const MainOneNumber = () => {
   const navigate = useNavigate();
   const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { odds = '10', gameLabel, range, GameName = 'One Number Spin' } = userDetails || {};
 
   const [totalInput, setTotalInput] = useState('');
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
@@ -18,6 +17,7 @@ const MainOneNumber = () => {
   const [isSpinning, setIsSpinning] = useState(false);
 
   const [play, { stop }] = useSound(spinSound);
+ 
 
   const totalAmount = parseFloat(totalInput) || 0;
   const admissionFee = totalAmount * 0.25;
@@ -25,9 +25,10 @@ const MainOneNumber = () => {
 
   const spinDuration = 3000; // spin time in ms
 
-     useEffect(() => {
-        window.scrollTo(0, 0);
-      }, []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const spinWheel = () => {
     if (isSpinning) return; // prevent multiple spins
 
@@ -35,30 +36,33 @@ const MainOneNumber = () => {
     setIsSpinning(true);
     play();
 
-    // Spin ends after spinDuration
     setTimeout(() => {
       const number = Math.floor(Math.random() * 10) + 1;
       setWinningNumbers([number]);
       setShowResult(true);
       setIsButtonDisabled(totalAmount === 0);
       setIsSpinning(false);
-      stop(); // stop sound
+      stop();
     }, spinDuration);
   };
 
   const handlePublishGame = () => {
-    setLoading(true);
-    const formattedOdds = `${odds}x`;
+    if (winningNumbers.length === 0) {
+      alert('Please spin the wheel first.');
+      return;
+    }
 
+    setLoading(true);
     setTimeout(() => {
       setUserDetails({
+        ...userDetails,
         stake: stake.toFixed(2),
-        odds: formattedOdds,
-        gameLabel: `${winningNumbers.join(', ')}`,
-        GameName,
-        range,
-        result: gameLabel,
+        odds: '3.33x',
+        gameLabel: winningNumbers[0].toString(),
+        GameName: 'One Number Spin',
+        result: winningNumbers[0].toString(),
       });
+
       navigate('/available-games');
       setLoading(false);
     }, 2000);
@@ -74,7 +78,7 @@ const MainOneNumber = () => {
       <style>{`
         @keyframes spin-once {
           0% { transform: rotate(0deg); }
-          100% { transform: rotate(1080deg); } /* 3 full spins */
+          100% { transform: rotate(1080deg); }
         }
         .spin-once {
           animation: spin-once ${spinDuration}ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -83,7 +87,7 @@ const MainOneNumber = () => {
 
       <div className="min-h-screen bg-gray-100 p-4">
         <div className="max-w-4xl mx-auto space-y-6">
-          <h1 className="text-2xl font-bold">{GameName}</h1>
+          <h1 className="text-2xl font-bold">One Number Spin</h1>
           <p className="text-gray-600">Spin the wheel and set your total stake as The House</p>
 
           <div className="flex justify-center">
@@ -124,21 +128,12 @@ const MainOneNumber = () => {
             ))}
           </div>
 
-          <p className="text-lg font-medium text-center">Odds: {odds}</p>
-
-          {/* <button
-            onClick={spinWheel}
-            disabled={isSpinning}
-            className={`bg-blue-700 mx-s text-white px-4 py-2 rounded hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            {isSpinning ? 'Spinning...' : 'Spin Wheel'}
-          </button> */}
+          <p className="text-lg font-medium text-center">Odds: 3.33x</p>
 
           <Button
-          isDisabled={isSpinning}
-          // isLoading={isSpinning}
-          onClick={spinWheel}
-          text={'spin Wheel'}
+            isDisabled={isSpinning}
+            onClick={spinWheel}
+            text={isSpinning ? 'Spinning...' : 'Spin Wheel'}
           />
 
           <div className="mt-6 space-y-4">
@@ -162,32 +157,19 @@ const MainOneNumber = () => {
 
             <p>Your wallet balance: ₦150,000</p>
 
-             <Button
-          isDisabled={isButtonDisabled || loading}
-          isLoading={loading}
-           text="Publish Game"
-           isSpinning={false}
-          onClick={handlePublishGame}
-           />
-
-            {/* <button
-              disabled={isButtonDisabled || loading}
+            <Button
+              isDisabled={isButtonDisabled || loading}
+              isLoading={loading}
+              text={loading ? 'Publishing...' : 'Publish Game'}
               onClick={handlePublishGame}
-              className={`w-full py-3 rounded ${
-                isButtonDisabled || loading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-green-700 hover:bg-green-800 text-white'
-              }`}
-            >
-              {loading ? 'Publishing...' : 'Publish Game'}
-            </button> */}
+            />
           </div>
 
           <div className="bg-white p-4 rounded shadow mt-6">
             <h2 className="font-semibold mb-2">How It Works</h2>
             <p>
               Spin the wheel to randomly select one winning number from 1–10. Players will bet against your
-              result with odds of 10. If they guess the winning number, they win. If not, you win.
+              result with odds of 3.33. If they guess the winning number, they win. If not, you win.
             </p>
           </div>
         </div>
