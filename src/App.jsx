@@ -101,7 +101,7 @@ function App() {
              >
               <Route
                 index
-                path="/home"
+                path="/"
                 element={
                   // <PageTransition >
                     <Home/>
