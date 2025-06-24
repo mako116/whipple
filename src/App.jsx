@@ -94,14 +94,14 @@ function App() {
           <Routes> 
             <Route
               element={
-                <ProtectedRoute>
+                // <ProtectedRoute>
                   <AppLayout />
-                </ProtectedRoute>
+                // </ProtectedRoute>
               }
              >
               <Route
                 index
-                path="/home"
+                path="/"
                 element={
                   // <PageTransition >
                     <Home/>

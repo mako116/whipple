@@ -29,7 +29,7 @@ const { mutate, isLoading } = useLoginUser(async (response) => {
         setData({ email: "", password: "" })
 
         // Navigate to home
-        navigate("/home")
+        navigate("/")
     } else {
          toast.error(response.message || "Login failed");
     }
@@ -44,7 +44,7 @@ const { mutate, isLoading } = useLoginUser(async (response) => {
 
   const handleLogin = () => {
         // e.preventDefault();
-         navigate("/home")
+         navigate("/")
         // mutate(data);
     };
   
