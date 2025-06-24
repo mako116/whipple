@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import WinningModal from '../../../../components/modals/WinningModal';
 import LosingModal from '../../../../components/modals/LosersModal';
+import { AuthContext } from '../../../../context/authContext';
 
 const colors = [
   { id: 'red', hex: '#EA384C', label: 'Red' },
@@ -19,6 +20,8 @@ const SelectedColorRoulette2 = () => {
   const [success, setSuccess] = useState(null);
   const [visible, setVisible] = useState(false);
   const [result, setResult] = useState('');
+  const { userDetails, setUserDetails } = useContext(AuthContext);
+  const {stake, odds,selected, gameLabel, range, GameName } = userDetails || {};
 
   const controls = useAnimation();
   const navigate = useNavigate();
@@ -54,6 +57,20 @@ const SelectedColorRoulette2 = () => {
 
   const getOpacity = (id) => {
     return !houseColor || houseColor.id === id ? 1 : 0.4;
+  };
+
+    const moveForward = () => {
+    setUserDetails({
+      stake ,
+      odds ,
+      gameLabel,
+      GameName,
+      range,
+      selected ,
+      isGameLost: true,
+     });
+
+    navigate('/losers-games');
   };
 
   return (
@@ -116,9 +133,9 @@ const SelectedColorRoulette2 = () => {
       )}
 
       {success === false && (
-        <button
+        <button 
           className="bg-red-600 text-white py-3 px-8 rounded mb-4"
-          onClick={() => navigate('/losers-games')}
+          onClick={moveForward}
         >
           Play Losers Game
         </button>

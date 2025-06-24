@@ -57,7 +57,7 @@ const MainOneNumber = () => {
       setUserDetails({
         ...userDetails,
         stake: stake.toFixed(2),
-        odds: '3.33x',
+        odds: '10x',
         gameLabel: winningNumbers[0].toString(),
         GameName: 'One Number Spin',
         result: winningNumbers[0].toString(),
@@ -128,7 +128,7 @@ const MainOneNumber = () => {
             ))}
           </div>
 
-          <p className="text-lg font-medium text-center">Odds: 3.33x</p>
+          <p className="text-lg font-medium text-center">Odds: 10x</p>
 
           <Button
             isDisabled={isSpinning}
@@ -169,7 +169,7 @@ const MainOneNumber = () => {
             <h2 className="font-semibold mb-2">How It Works</h2>
             <p>
               Spin the wheel to randomly select one winning number from 1–10. Players will bet against your
-              result with odds of 3.33. If they guess the winning number, they win. If not, you win.
+              result with odds of 10. If they guess the winning number, they win. If not, you win.
             </p>
           </div>
         </div>

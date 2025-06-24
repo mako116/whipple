@@ -46,7 +46,7 @@ export default function ColorRoulettePage() {
       activeColors,
       odds: '2×',
       gameLabel: activeColors.join(','),
-      GameName: 'Color Roulette',
+      GameName: 'color roulette',
     });
 
     navigate('/available-games');

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useAnimation } from 'framer-motion';
@@ -7,7 +8,6 @@ import FormInput from '../../../../components/Input/FormInput';
 const MainWheelSpin = () => {
   const navigate = useNavigate();
   const { userDetails, setUserDetails } = useContext(AuthContext);
-
   const { odds = '3.333', gameLabel, range, GameName = 'Wheel Spin' } = userDetails || {};
 
   const [totalInput, setTotalInput] = useState('');
@@ -124,7 +124,7 @@ const MainWheelSpin = () => {
             Spin Wheel
           </button>
 
-          <div className="mt-4 text-lg font-semibold">Odds: {odds}</div>
+          <div className="mt-4 text-lg font-semibold">Odds: 3.33x</div>
 
           <div className="mt-8 w-full">
             <label className="block mb-2 font-medium">Enter Total Amount (₦)</label>
