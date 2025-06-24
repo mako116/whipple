@@ -94,9 +94,9 @@ function App() {
           <Routes> 
             <Route
               element={
-                // <ProtectedRoute>
+                <ProtectedRoute>
                   <AppLayout />
-                // </ProtectedRoute>
+                </ProtectedRoute>
               }
              >
               <Route

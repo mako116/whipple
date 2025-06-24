@@ -6,12 +6,14 @@ function ProtectedRoute({ children }) {
   const location = useLocation();
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
+    // const accessToken = localStorage.getItem("accessToken");
 
-    if (!accessToken) {
+    // if (!accessToken) {
       // If not authenticated, redirect to onboarding
-      navigate("/onboarding", { state: { from: location } });
-    }
+      navigate("/onboarding",
+        //  { state: { from: location } }
+        );
+    // }
   }, [navigate, location]);
 
   const accessToken = localStorage.getItem("accessToken");
