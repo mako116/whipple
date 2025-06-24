@@ -1,56 +1,45 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../../context/authContext';
 import LosingModal from '../../../../components/modals/LosersModal';
 import WinningModal from '../../../../components/modals/WinningModal';
 
-export default function SelectedLuckyNumbers() {
+const SelectedLuckyNumbers = () => {
   const navigate = useNavigate();
   const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { stake, gameLabel, range, GameName = 'Lucky Number', odds = '3.333' } = userDetails || {};
+  const { odds, gameLabel, range, GameName, stake, selected } = userDetails || {};
 
-  // Safely parse the range and provide fallback default (e.g., 10)
-  const parsedRange = Number.isFinite(Number(range)) ? parseInt(range, 10) : 10;
-
-  const [selectedNumber, setSelectedNumber] = useState(null);
-  const [hasSpun, setHasSpun] = useState(false);
+  const correctNumber = parseInt(selected);
+ 
+  // const [isFirstLoss, setIsFirstLoss] = useState(true);
+  const [selectedNumbers, setSelectedNumbers] = useState([]);
   const [success, setSuccess] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [visible, setModalVisibled] = useState(false);
 
-  // Generate winning number on spin
-  const [correctNumber, setCorrectNumber] = useState(null);
+  const closeModal = () => setModalVisibled(false);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    // Set winning number once when component mounts
-    setCorrectNumber(Math.floor(Math.random() * parsedRange) + 1);
-  }, [parsedRange]);
-
-  const handleNumberSelect = (num) => {
-    if (hasSpun) return;
-
-    setSelectedNumber(num);
-    setHasSpun(true);
-
-    if (num === correctNumber) {
-      setSuccess(true);
-    } else {
-      setSuccess(false);
+  const handleNumberSelect = (number) => {
+    if (success !== null) return;
+    if (selectedNumbers.includes(number)) {
+      setSelectedNumbers(selectedNumbers.filter((num) => num !== number));
+    } else if (selectedNumbers.length < 1) {
+      setSelectedNumbers([...selectedNumbers, number]);
     }
-
-    setModalVisible(true);
   };
 
-  const closeModal = () => {
-    setModalVisible(false);
+  const handleSubmit = () => {
+    setSuccess(selectedNumbers.includes(correctNumber));
+    setModalVisibled(true);
   };
 
-  const handleLosersGame = () => {
+  const handleLosersRoute = () => {
     setUserDetails({
-      stake,
+      stake: stake.toString(),
       odds,
       gameLabel,
       GameName,
+      range,
+      selected: selectedNumbers.join(','),
       isGameLost: true,
     });
     navigate('/losers-games');
@@ -58,68 +47,86 @@ export default function SelectedLuckyNumbers() {
 
   return (
     <div className="min-h-screen bg-blue-100">
-      <header className="bg-blue-300 p-4">
-        <h1 className="text-xl font-bold">{GameName}</h1>
-      </header>
+ 
+      <div className="p-4 max-w-2xl mx-auto">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold">{GameName}</h2>
+          <p className="text-gray-600">{GameName} - {gameLabel} (2 from 1-{range})</p>
+        </div>
 
-      <div className="p-2 space-y-6 m-auto md:w-[600px]">
-        <div>
-          <h2 className="text-2xl font-semibold mb-1">Select 1 Lucky Number</h2>
-          <p className="text-gray-700 mb-4">{gameLabel || `Choose from 1–${parsedRange}`}</p>
-
-          {selectedNumber && (
-            <p className="mb-2 text-lg font-medium">
-              Selected Number: <span className="font-bold">{selectedNumber}</span>
-            </p>
-          )}
-
-          {parsedRange > 0 ? (
-            <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
-              {Array.from({ length: parsedRange }).map((_, i) => {
-                const num = i + 1;
-                const isSel = selectedNumber === num;
-                return (
-                  <button
-                    key={num}
-                    onClick={() => handleNumberSelect(num)}
-                    className={`p-2 border rounded font-semibold ${
-                      isSel ? 'bg-blue-600 text-white' : 'bg-white text-gray-800'
-                    }`}
-                    disabled={hasSpun}
-                  >
-                    {num}
-                  </button>
-                );
-              })}
+        <div className="bg-white p-4 rounded shadow mb-6">
+          <h3 className="text-lg font-semibold mb-2">Game Details</h3>
+          <p className="text-gray-600 mb-2">House: @current-user</p>
+          <div className="flex justify-between mb-2">
+            <div>
+              <p className="text-sm">Stake</p>
+              <p className="font-semibold">₦{stake}</p>
             </div>
+            <div>
+              <p className="text-sm">Odds</p>
+              <p className="font-semibold">{odds}</p>
+            </div>
+          </div>
+          <p className="text-sm text-gray-500">Players: 9 joined</p>
+        </div>
+
+        <div className="bg-white p-4 rounded shadow mb-6">
+          <h3 className="text-lg font-semibold mb-2">Select Your Lucky Number</h3>
+          <div className="grid grid-cols-5 md:grid-cols-10 gap-2 mb-2">
+            {Array.from({ length: parseInt(range) }, (_, i) => i + 1).map((num) => (
+              <button
+                key={num}
+                onClick={() => handleNumberSelect(num)}
+                disabled={success !== null}
+                className={`p-2 rounded border font-bold ${selectedNumbers.includes(num) ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'} ${success !== null ? 'opacity-50' : ''}`}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+
+          <p className="text-sm mb-4">{selectedNumbers.length}/1 numbers selected</p>
+
+          {success === false ? (
+            <button onClick={handleLosersRoute} className="w-full bg-red-600 text-white py-2 rounded">
+              Play Losers Game
+            </button>
+          ) : success === true ? (
+            <button onClick={() => navigate('/games/category/category-main')} className="w-full bg-green-600 text-white py-2 rounded">
+              Go to Games
+            </button>
           ) : (
-            <p className="text-red-500 font-medium">Invalid range specified. Please set a valid range.</p>
+            <button onClick={handleSubmit} className="w-full bg-blue-600 text-white py-2 rounded">
+              Submit Your Numbers
+            </button>
           )}
         </div>
 
-        {/* Buttons */}
-        {hasSpun && success === false && (
-          <button
-            onClick={handleLosersGame}
-            className="bg-[#0A1931] text-white font-semibold rounded-lg px-8 py-3 mx-auto block"
-          >
-            Play Losers Game
-          </button>
-        )}
+        <div className="bg-white p-4 rounded shadow mb-4">
+          <h3 className="text-lg font-bold mb-2">How To Win</h3>
+          <p>
+            Pick the exact <span className="text-blue-600 font-semibold">{selected} number</span> between <span className="text-blue-600 font-semibold">{gameLabel}</span> the House selected to win.
+            If your selection matches exactly, <span className="text-green-600 font-bold">you win!</span>
+          </p>
+        </div>
 
-        {hasSpun && success === true && (
-          <button
-            onClick={() => navigate('/games')}
-            className="bg-[#0A1931] text-white font-semibold rounded-lg px-8 py-3 mx-auto block"
-          >
-            Go Back to Games
-          </button>
-        )}
+        <button onClick={() => navigate(-1)} className="w-full border border-blue-600 text-blue-600 py-2 rounded">
+          GO BACK
+        </button>
       </div>
 
-      {/* Modals */}
-      {success === true && <WinningModal visible={modalVisible} closeModal={closeModal} />}
-      {success === false && <LosingModal visible={modalVisible} closeModal={closeModal} />}
+      {success === true && (
+        <WinningModal visible={visible} closeModal={closeModal} />
+      )}
+      {success === false && (
+        <LosingModal
+          visible={visible}
+          closeModal={closeModal}
+          
+        />
+      )}
     </div>
   );
-}
+};
+
+export default SelectedLuckyNumbers;
