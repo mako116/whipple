@@ -8,7 +8,7 @@ import FormInput from '../../../../components/Input/FormInput';
 const MainWheelSpin = () => {
   const navigate = useNavigate();
   const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { odds = '3.333', gameLabel, range, GameName = 'Wheel Spin' } = userDetails || {};
+  const {gameLabel, range,  } = userDetails || {};
 
   const [totalInput, setTotalInput] = useState('');
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
@@ -57,7 +57,7 @@ const MainWheelSpin = () => {
 
   const handlePublishGame = () => {
     setLoading(true);
-    const formattedOdds = `${odds}x`;
+    const formattedOdds = `3.333x`;
 
     setTimeout(() => {
       navigate('/available-games');
@@ -65,7 +65,7 @@ const MainWheelSpin = () => {
         stake: stake.toFixed(2),
         odds: formattedOdds,
         gameLabel: `${winningNumbers.join(', ')}`,
-        GameName,
+         GameName: 'Wheel Spin',
         range,
         result: gameLabel,
       });

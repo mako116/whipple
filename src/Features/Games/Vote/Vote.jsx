@@ -36,7 +36,7 @@ export default function Vote() {
         navigate("/choose-lucky-numbers", {
           state: { stake, odds, gameLabel, GameName, range, selected },
         });
-        break;
+        break; 
 
       case "flip the coin":
         navigate("/Selected-coin-flip", {

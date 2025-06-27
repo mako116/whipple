@@ -57,7 +57,7 @@ const SelectedWheelSpin = () => {
     });
 
     const result = [];
-    while (result.length < 1) {
+    while (result.length < 3) {
       const num = Math.floor(Math.random() * 10) + 1;
       if (!result.includes(num)) result.push(num);
     }
@@ -67,7 +67,7 @@ const SelectedWheelSpin = () => {
   };
 
   const checkResult = (result) => {
-    const isWin = selectedNumbers[0] === result[0];
+const isWin = result.includes(selectedNumbers[0]);
     lastResultWasWin.current = isWin;
     setSuccess(isWin);
     setModalVisible(true);
