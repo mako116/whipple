@@ -1,40 +1,96 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../../../context/authContext';
-import LosingModal from '../../../../components/modals/LosersModal';
+import React, { useContext, useEffect, useState } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useRequest } from '../../../../hooks/useRequest';
+import axiosClient from '../../../../utlis/Axios';
+import toast from 'react-hot-toast';
 import WinningModal from '../../../../components/modals/WinningModal';
+import LosingModal from '../../../../components/modals/LosersModal';
+import { AuthContext } from '../../../../context/authContext';
 
 const SelectedLuckyNumbers = () => {
-  const navigate = useNavigate();
-  const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { odds, gameLabel, range, GameName, stake, selected } = userDetails || {};
+   const [searchParams] = useSearchParams();
 
-  const correctNumber = parseInt(selected);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const {  name, stake, odds, gameLabel, GameName, selected, totalOdds ,range} =
+    location.state || {};
  
-  // const [isFirstLoss, setIsFirstLoss] = useState(true);
+  // Context with user details
+  const { userDetails, setUserDetails } = useContext(AuthContext);
+  const { id } = userDetails || {};
+
+   const { loading, makeRequest } = useRequest();
+
+  // Local game state
+  const [game, setGame] = useState(null);
   const [selectedNumbers, setSelectedNumbers] = useState([]);
   const [success, setSuccess] = useState(null);
-  const [visible, setModalVisibled] = useState(false);
+  const [visible, setVisible] = useState(false);
 
-  const closeModal = () => setModalVisibled(false);
+ 
 
-  const handleNumberSelect = (number) => {
-    if (success !== null) return;
-    if (selectedNumbers.includes(number)) {
-      setSelectedNumbers(selectedNumbers.filter((num) => num !== number));
-    } else if (selectedNumbers.length < 1) {
-      setSelectedNumbers([...selectedNumbers, number]);
+useEffect(() => {
+  if (!id) {
+    toast.error('Missing game ID');
+    return;
+  }
+
+  const fetchGame = async () => {
+    try {
+      const res = await axiosClient.get(`/get-game/${id}`);
+      setGame(res.data.game);
+    } catch (err) {
+      toast.error('Failed to fetch game');
     }
   };
 
-  const handleSubmit = () => {
-    setSuccess(selectedNumbers.includes(correctNumber));
-    setModalVisibled(true);
+  fetchGame();
+}, [id]);
+
+
+  const correctNumber = parseInt(selected, 10);
+  const parsedTotalOdds = parseFloat(totalOdds);
+
+  const closeModal = () => setVisible(false);
+
+  const handleNumberSelect = (number) => {
+    if (success !== null) return;
+    if (selectedNumbers.includes(number)) return;
+
+    setSelectedNumbers([number]); // Only allow one number
   };
 
-  const handleLosersRoute = () => {
+  const handleSubmit = async () => {
+    if (selectedNumbers.length === 0) {
+      toast.error('Please select a number before submitting');
+      return;
+    }
+
+    if (!game?.id) {
+      toast.error('Game information missing');
+      return;
+    }
+
+    const res = await makeRequest('/play-game', {
+      gameId: game.id,
+      choiceNumber: selectedNumbers[0],
+      name,
+    });
+
+    if (res.error) {
+      toast.error(res.error);
+      return;
+    }
+
+    setSuccess(res.response.success);
+    setVisible(true);
+  };
+
+  const handleLosers = () => {
+    navigate('/games/LostGames/ViewLostGames');
     setUserDetails({
-      stake: stake.toString(),
+      stake: stake?.toString() || '',
       odds,
       gameLabel,
       GameName,
@@ -42,87 +98,123 @@ const SelectedLuckyNumbers = () => {
       selected: selectedNumbers.join(','),
       isGameLost: true,
     });
-    navigate('/losers-games');
   };
 
   return (
-    <div className="min-h-screen bg-blue-100">
- 
-      <div className="p-4 max-w-2xl mx-auto">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold">{GameName}</h2>
-          <p className="text-gray-600">{GameName} - {gameLabel} (2 from 1-{range})</p>
-        </div>
+    <div className="p-4 pb-10">
+      {/* Header */}
+      <div className="mb-5">
+        <h1 className="text-xl font-semibold">{game?.name || 'Loading...'}</h1>
+        <p className="text-sm text-gray-500">
+          {game?.name || '-'} - {game?.subcategory || '-'} (2 from 1-{range || '-'})
+        </p>
+      </div>
 
-        <div className="bg-white p-4 rounded shadow mb-6">
-          <h3 className="text-lg font-semibold mb-2">Game Details</h3>
-          <p className="text-gray-600 mb-2">House: @current-user</p>
-          <div className="flex justify-between mb-2">
-            <div>
-              <p className="text-sm">Stake</p>
-              <p className="font-semibold">₦{stake}</p>
-            </div>
-            <div>
-              <p className="text-sm">Odds</p>
-              <p className="font-semibold">{odds}</p>
-            </div>
+      {/* Game Card */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <h2 className="text-lg font-semibold mb-2">Game Details</h2>
+        <p className="text-sm text-gray-500 mb-3">House: @{game?.creator?.name || 'N/A'}</p>
+        <div className="flex justify-between mb-4">
+          <div>
+            <p className="text-xs text-gray-500">Stake</p>
+            <p className="text-base font-bold">₦{game?.stake || '0'}</p>
           </div>
-          <p className="text-sm text-gray-500">Players: 9 joined</p>
+          <div>
+            <p className="text-xs text-gray-500">Odds</p>
+            <p className="text-base font-bold">{game?.odds || '0'}</p>
+          </div>
         </div>
+        <p className="text-xs text-gray-500">Players</p>
+        <p className="text-base font-bold mb-2">9 joined</p>
+      </div>
 
-        <div className="bg-white p-4 rounded shadow mb-6">
-          <h3 className="text-lg font-semibold mb-2">Select Your Lucky Number</h3>
-          <div className="grid grid-cols-5 md:grid-cols-10 gap-2 mb-2">
-            {Array.from({ length: parseInt(range) }, (_, i) => i + 1).map((num) => (
+      {/* Number Selection */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <h2 className="text-lg font-semibold mb-4">Select Your Lucky Numbers</h2>
+        <p className="text-sm text-gray-500 mb-4">House: @current-user</p>
+
+        <div className="flex flex-wrap justify-center gap-3 mb-4">
+          {range > 0 ? (
+            Array.from({ length: range }, (_, i) => i + 1).map((num) => (
               <button
                 key={num}
                 onClick={() => handleNumberSelect(num)}
                 disabled={success !== null}
-                className={`p-2 rounded border font-bold ${selectedNumbers.includes(num) ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'} ${success !== null ? 'opacity-50' : ''}`}
+                className={`w-12 h-12 rounded flex items-center justify-center font-bold ${
+                  selectedNumbers.includes(num)
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-gray-100 text-gray-900'
+                } ${success !== null ? 'opacity-50' : ''}`}
               >
                 {num}
               </button>
-            ))}
-          </div>
-
-          <p className="text-sm mb-4">{selectedNumbers.length}/1 numbers selected</p>
-
-          {success === false ? (
-            <button onClick={handleLosersRoute} className="w-full bg-red-600 text-white py-2 rounded">
-              Play Losers Game
-            </button>
-          ) : success === true ? (
-            <button onClick={() => navigate('/games/category/category-main')} className="w-full bg-green-600 text-white py-2 rounded">
-              Go to Games
-            </button>
+            ))
           ) : (
-            <button onClick={handleSubmit} className="w-full bg-blue-600 text-white py-2 rounded">
-              Submit Your Numbers
-            </button>
+            <p className="text-gray-500">Loading numbers...</p>
           )}
         </div>
 
-        <div className="bg-white p-4 rounded shadow mb-4">
-          <h3 className="text-lg font-bold mb-2">How To Win</h3>
-          <p>
-            Pick the exact <span className="text-blue-600 font-semibold">{selected} number</span> between <span className="text-blue-600 font-semibold">{gameLabel}</span> the House selected to win.
-            If your selection matches exactly, <span className="text-green-600 font-bold">you win!</span>
-          </p>
-        </div>
+        <p className="text-sm text-gray-500 mb-4">
+          {selectedNumbers.length}/1 numbers selected
+        </p>
 
-        <button onClick={() => navigate(-1)} className="w-full border border-blue-600 text-blue-600 py-2 rounded">
+        {/* Action Buttons */}
+        {success === false ? (
+          <button onClick={handleLosers} className="bg-indigo-600 w-full text-white py-3 rounded mb-2">
+            Play Losers Game
+          </button>
+        ) : success === true ? (
+          <button
+            onClick={() => navigate('/games/category/category-main')}
+            className="bg-indigo-600 w-full text-white py-3 rounded mb-2"
+          >
+            Go to Games
+          </button>
+        ) : (
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="bg-indigo-600 w-full text-white py-3 rounded mb-2"
+          >
+            {loading ? <span>Submitting...</span> : 'Submit Your Number'}
+          </button>
+        )}
+      </div>
+
+      {/* How to Win */}
+      <div className="bg-white p-4 rounded-lg mb-6">
+        <h3 className="text-base font-semibold text-gray-800 mb-2">How To Win</h3>
+        <p className="text-sm text-gray-600 leading-relaxed">
+          Pick the exact <span className="font-semibold text-indigo-600">{selected}</span> number between{' '}
+          <span className="font-semibold text-indigo-600">{gameLabel}</span> the House selected to win. If your
+          selection matches exactly, <span className="text-green-600 font-semibold">you win!</span>
+        </p>
+      </div>
+
+      <div className="flex justify-start">
+        <button
+          onClick={() => navigate(-1)}
+          className="border border-gray-300 py-2 px-6 rounded text-sm font-semibold"
+        >
           GO BACK
         </button>
       </div>
 
-      {success === true && (
-        <WinningModal visible={visible} closeModal={closeModal} />
-      )}
+      {/* Modals */}
+      {success === true && <WinningModal visible={visible} closeModal={closeModal} />}
       {success === false && (
         <LosingModal
           visible={visible}
           closeModal={closeModal}
-          
+          correctNumber={correctNumber}
+          stake={stake}
+          odds={odds}
+          GameName={GameName}
+          gameLabel={gameLabel}
+          range={range}
+          selected={selected}
+          parsedTotalOdds={parsedTotalOdds}
+          selectedNumbers={selectedNumbers}
         />
       )}
     </div>

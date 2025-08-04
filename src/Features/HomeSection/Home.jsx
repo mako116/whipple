@@ -34,7 +34,7 @@ const HomeScreen = () => {
               See all
             </button>
           </div>
-          <AvailablePublishedGame showFilter={false} minHeight="h-[350px]" overflow='overflow-auto' />
+          <AvailablePublishedGame showFilter={false} limit={3} minHeight="h-[100%]" overflow='overflow-auto' />
         </div>
 
         {/* Loser's Games */}

@@ -1,7 +1,8 @@
 import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 // import HeaderBet from "../../components/HeaderBet"; // Adjust import path to your setup
 import { AuthContext } from "../../../context/authContext";
+import { useRequest } from "../../../hooks/useRequest";
 
 const PRIMARY_COLOR = "#1A4ED8"; // Deep Blue
 
@@ -12,83 +13,102 @@ const options = [
 ];
 
 export default function Vote() {
+     const { userDetails } = useContext(AuthContext);
+
   const [value, setValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const {  gameLabel, range, selected, GameName } = userDetails || {};
 
-     const { userDetails } = useContext(AuthContext);
+    const {makeRequest, loading} = useRequest()
+       const [searchParams] = useSearchParams();
+ 
+const id = searchParams.get("id");
+const name = searchParams.get("name");
+const house = searchParams.get("house");
+ const stake = Number(searchParams.get("stake"));
+const odds = searchParams.get("odds");
+ 
+console.log('GameName:', GameName); // ✅ now shows the correct value
+console.table({
+  id, name, house, GameName, stake, odds, gameLabel, range, selected
+});
+
+console.log("Vote screen — id:", id, "name:", name);
+
    
-  const { stake, odds, gameLabel, range, selected, GameName } = userDetails || {};
 
   const navigate = useNavigate();
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     if (!value) {
       alert("Please select an option.");
       return;
     }
 
-    const normalizedGameName = GameName?.toLowerCase?.();
+     const res = await makeRequest('/submit-vote')
+
+    const normalizedGameName = name?.toLowerCase?.();
     setIsSubmitting(true);
 
     switch (normalizedGameName) {
       case "lucky number":
         navigate("/choose-lucky-numbers", {
-          state: { stake, odds, gameLabel, GameName, range, selected },
+          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected },
         });
         break; 
 
       case "flip the coin":
-        navigate("/Selected-coin-flip", {
-          state: { stake, odds, gameLabel, GameName, range, selected },
+        navigate(`/selected-coin-flip?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected },
         });
         break;
 
       case "color roulette":
         navigate("/choose-colorRoulette", {
-          state: { stake, odds, gameLabel, GameName,  selected },
+          state: { stake, odds, id,name, gameLabel, GameName,  selected },
         });
         break;
 
       case "mystery box":
         navigate("/selected-mystery-box", {
-          state: { stake, odds, gameLabel, GameName, range, selected },
+          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
         });
         break;
 
       case "goal challenge":
         navigate("/Selected-goal-challenge", {
-          state: { stake, odds, gameLabel, GameName, range, selected },
+          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
         });
         break;
 
       case "dice roll":
         navigate("/selected-dice-roll", {
-          state: { stake, odds, gameLabel, GameName, range, selected },
+          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
         });
         break;
 
       case "wheel spin":
         navigate("/selected-wheel-spin", {
-          state: { stake, odds,  GameName, },
+          state: { stake, odds, id,name,  GameName, },
         }); 
         break;
 
       case "spin the bottle":
         navigate("/selected-spin-bottle", {
-          state: { stake, odds, gameLabel, GameName, range, selected },
+          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
         });
         break;
 
       case "one number spin":
         navigate("/selected-one-number", {
-          state: { stake, odds, gameLabel, GameName, range, selected },
+          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
         });
-        break;
+        break; 
 
       case "color roulette2":
         navigate("/selected-color-roulette2", {
-          state: { stake, odds, gameLabel, GameName, range, selected },
+          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
         });
         break;
 
@@ -105,7 +125,7 @@ export default function Vote() {
         
     }
 
-    setIsSubmitting(false);
+    setIsSubmitting(false); 
   };
 
   const handleCancel = () => {
@@ -170,11 +190,34 @@ export default function Vote() {
             className={`flex-1 py-3 cursor-pointer rounded bg-blue-700 text-white font-semibold
               ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-800"}`}
           >
-            {isSubmitting ? (
-              <span className="inline-block animate-spin border-4 border-white border-t-transparent rounded-full w-5 h-5 mx-auto"></span>
-            ) : (
-              "Submit Vote"
+             {loading ? (
+    <span className="flex justify-center items-center space-x-2">
+      <svg
+        className="animate-spin h-5 w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+           ></circle>
+          <path
+           className="opacity-75"
+           fill="currentColor"
+           d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+           ></path>
+           </svg>
+           <span>Publishing...</span>
+           </span>
+             ) : (
+          "Submit Vote"
             )}
+            
           </button>
         </div>
       </main>

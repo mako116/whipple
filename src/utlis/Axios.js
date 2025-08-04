@@ -1,70 +1,50 @@
-import axios from "axios";
-import SummaryApi, { baseURL } from "../ApiRoute/SummaryApi";
+ import axios from 'axios';
+// import { useNavigate } from 'react-router-dom';
 
-const Axios =  axios.create({
-    baseURL : baseURL,
-    withCredentials : true
-}) 
-  
-// sending access token in the header
-Axios.interceptors.request.use(
-    async(config)=>{
-        const accessToken = localStorage.getItem('accessToken')
+const axiosClient = axios.create({
+  baseURL: `${import.meta.env.VITE_BASE_URL}/api`,
+  headers: {
+    'Content-Security-Policy': "default-src 'self'; img-src https://*; script-src 'self';",
+  },
+});
 
-        if(accessToken){
-            config.headers.Authorization = `Bearer ${accessToken}`
-        }
- 
-        return config
-    },
-    (error)=>{
-        return Promise.reject(error)
+// Request interceptor
+axiosClient.interceptors.request.use(
+  (config) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error retrieving auth token:', error);
     }
-)
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-// extend the life span of access token with
-// the help refresh 
-Axios.interceptors.request.use(
-    (response)=>{
-        return response
-    },
-    async(error)=>{
-        let originRequest = error.config
-        
-        if(error.response.status === 401 && !originRequest.retry){
-            originRequest.retry == true 
+// Response interceptor
+axiosClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    try {
+      const { response } = error;
 
-            const refreshToken = localStorage.getItem('refreshToken')
+      if (response && response.status === 401) {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userDetails');
+        localStorage.removeItem('loggedIn');
 
-            if(refreshToken){
-              const newaccessToken = await refreshAccessToken(refreshToken)
-
-              if(newaccessToken){
-                originRequest.headers.Authorization = ` Bearer ${newaccessToken}`
-                return Axios(originRequest)
-              }
-            }
-        }
-       return Promise.reject(error)
+        // You cannot use `useNavigate` here directly,
+        // So we use a redirect with `window.location`
+        window.location.href = '/login';
+      }
+    } catch (err) {
+      console.error('Error handling response error:', err);
     }
+    return Promise.reject(error);
+  }
+);
 
-)
-
-const refreshAccessToken = async(refreshToken)=>{
-    try{
-        const response = await Axios({
-            ...SummaryApi.refreshToken,
-            headers : {
-                Authorization : `Bearer ${refreshToken}`
-            }
-    })
-      const accessToken = response.data.data.accessToken
-               localStorage.setItem('accessToken',accessToken)
-                return accessToken
-         
-    }catch(error){
-        console.log(error);
-        
-    }
-}
-export default Axios
+export default axiosClient;

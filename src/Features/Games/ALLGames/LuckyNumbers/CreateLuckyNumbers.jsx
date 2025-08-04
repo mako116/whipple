@@ -2,6 +2,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../../context/authContext';
+import { useRequest } from '../../../../hooks/useRequest';
+import toast from 'react-hot-toast';
 
 const formatCurrency = value => {
   if (!value) return '';
@@ -12,7 +14,9 @@ const formatCurrency = value => {
 export default function CreateLuckyNumbers() {
   const navigate = useNavigate();
   const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { totalOdds, gameLabel, range, GameName, selectionCount } = userDetails || {};
+    const { loading, makeRequest, success, error, response } = useRequest();
+
+  const { totalOdds, subcategory,gameLabel, range, GameName, selectionCount } = userDetails || {};
 
   const parsedRange = parseInt(range, 10);
   const parsedSelectionCount = parseInt(selectionCount, 10);
@@ -37,25 +41,53 @@ export default function CreateLuckyNumbers() {
     selectedNumbers.length !== parsedSelectionCount || isNaN(stake) || stake <= 0
   );
 
-  const handlePublish = () => {
-    if (isPublishDisabled) {
-      alert(`Select exactly ${parsedSelectionCount} number(s) and enter a valid stake.`);
-      return;
-    }
+  const handlePublish = async () => {
+  if (isPublishDisabled) {
+    alert(`Select exactly ${parsedSelectionCount} number(s) and enter a valid stake.`);
+    return;
+  }
 
-    setUserDetails({
-      ...userDetails,
-      stake: totalAmount.toString(),
-      odds: parsedTotalOdds + 'x',
-      gameLabel,
-      GameName,
-      range,
-      selected: selectedNumbers.join(','),
-      selectionCount: parsedSelectionCount,
+  try {
+    const { error, response } = await makeRequest("/create-game", {
+      name: 'Lucky Number',
+      category: userDetails.category,
+      subcategory: subcategory,
+      result: selectedNumbers[0],
+      odds: userDetails.totalOdds,
+      stake: stakeAmount,
     });
 
-    navigate('/available-games');
-  };
+    if (error) {
+      toast.error(typeof error === 'string' ? error : 'Error creating game');
+      return;
+    }
+    const gameId = response?.game?.id || response?.id;
+
+
+    if (response) {
+      toast.success('Game Created Successfully');
+      // Update user details state here if needed
+      setUserDetails({
+        stake: totalAmount.toString(),
+        odds: parsedTotalOdds + 'x',
+        gameLabel,
+        GameName,
+        range,
+        selected: selectedNumbers.join(','),
+        selectionCount: parsedSelectionCount,
+      });
+      navigate('/available-games',{
+        state:{
+          id:gameId
+        }
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error('An unexpected error occurred');
+  }
+};
+
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -133,7 +165,33 @@ export default function CreateLuckyNumbers() {
             ${isPublishDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}
           `}
         >
-          Publish Game
+              {loading ? (
+    <span className="flex justify-center items-center space-x-2">
+      <svg
+        className="animate-spin h-5 w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        ></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+        ></path>
+      </svg>
+      <span>Publishing...</span>
+    </span>
+  ) : (
+    "Publish Game"
+  )}
         </button>
       </div>
     </div>

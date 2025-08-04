@@ -7,6 +7,8 @@ import Button from '../../../../components/button/gamebutton';
 import goalpost from '../../../../assets/images/games/goal-post.png';
 import useSound from 'use-sound';
 import shootSound from '../../../../assets/sounds/mixkit-hitting-soccer-ball-2112.wav';
+import { useRequest } from '../../../../hooks/useRequest';
+import toast from 'react-hot-toast';
 
 const MainGoalChallenge = () => {
   const ballRef = useRef(null);
@@ -17,6 +19,7 @@ const MainGoalChallenge = () => {
   const [selectedGoal, setSelectedGoal] = useState('');
   const [mainOdd] = useState('3.003x');
   const [isMoving, setIsMoving] = useState(false);
+  const {makeRequest, loading} = useRequest()
 
   const GameName = 'Goal Challenge';
   const { setUserDetails } = useContext(AuthContext);
@@ -73,24 +76,30 @@ const MainGoalChallenge = () => {
   const [admissionFee, setAdmissionFee] = useState(0);
   const [stake, setStake] = useState(0);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  const [loading, setLoading] = useState(false);
+  // const [ setLoading] = useState(false);
 
-  const handlePublishGame = () => {
-    setLoading(true);
+ const handlePublishGame = async() => {
+   
     const totalAmount = parseFloat(totalInput);
-
-    setTimeout(() => {
-      setUserDetails({
-        selectedBox: selectedGoal,
-        stake: totalAmount,
-        odds: mainOdd,
-        GameName,
-        gameLabel: `${selectedGoal} is the winning goal`,
-      });
-      setLoading(false);
+    
+    
+    const res = await makeRequest('/create-game', {name:'Goal Challenge', odds:mainOdd, direction:selectedGoal.toLowerCase(), stake:totalAmount});
+    if(res.response){
+      toast.success('Game Created Successfully')
+       setTimeout(() => {
+      
       navigate('/available-games');
     }, 2000);
+    } else if(res.error){
+      return Alert.alert('Error', res.error);
+    }else{
+     toast.error('server error')
+
+    }
+
+    
   };
+
 
   const handleTotalInputChange = (e) => {
     const text = e.target.value;

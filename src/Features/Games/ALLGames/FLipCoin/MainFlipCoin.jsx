@@ -4,12 +4,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCoins } from '@fortawesome/free-solid-svg-icons';
 import { AuthContext } from '../../../../context/authContext';
 import Button from '../../../../components/button/gamebutton';
+import { useRequest } from '../../../../hooks/useRequest';
+import toast from 'react-hot-toast';
 // import { useGameContext } from '../../../../context/AppContext';
 
-const MIN_STAKE = 200;
+const MIN_STAKE = 200; 
 const MAX_STAKE = 100000;
 
 const MainFlipCoin = () => {
+   const { makeRequest, loading } = useRequest();
   const { setUserDetails } = useContext(AuthContext);
   const GameName = 'Flip The Coin';
   const navigate = useNavigate();
@@ -27,7 +30,8 @@ const MainFlipCoin = () => {
 
     const numericStake = parseInt(stake);
     if (isNaN(numericStake) || numericStake < MIN_STAKE) {
-      window.alert(`Minimum stake is ₦${MIN_STAKE}`);
+      // window.alert(`Minimum stake is ₦${MIN_STAKE}`);
+      toast.error("Minimum stake is ₦")
       return;
     }
 
@@ -65,27 +69,47 @@ const MainFlipCoin = () => {
   const admissionFee = Math.round(stakeValue * 0.25);
   const totalAmount = stakeValue + admissionFee;
 
-  const handlePublish = () => {
-    if (!stake || !flipResult) {
-      window.alert('Flip the coin and enter a stake first.');
-      return;
-    }
+ const handlePublish = async () => {
+  if (!stake || !flipResult) {
+    toast.error("Please set a stake and flip the coin first");
+    return;
+  }
 
-    const parsedTotalOdds = '2.0';
-    const gameLabel = flipResult;
+  const parsedTotalOdds = "2.0";
+  const gameLabel = flipResult;
+  const range = "";
+  const selectedNumbers = [];
 
-    setUserDetails({
-      stake: stake.toString(),
-      odds: parsedTotalOdds + 'x',
-      gameLabel,
-      GameName,
-      range: '',
-      selected: [],
-      result: flipResult,
-    });
+  const res = await makeRequest('/create-game', {
+    name: 'Flip The Coin',
+    odds: 2,
+    result: flipResult,
+    stake: stake
+  });
 
-    navigate('/available-games');
-  };
+  if (res.error) {
+    toast.error(typeof res.error === 'string' ? res.error : 'Error creating game');
+    return;
+  }
+ 
+
+  // ✅ Update context
+  setUserDetails({
+    stake: stake.toString(),
+    odds: parsedTotalOdds + "x",
+    gameLabel,
+    GameName,
+    range,
+    selected: selectedNumbers,
+    result: flipResult,
+   });
+
+  toast.success("Game created successfully");
+
+  // ✅ Navigate to available-games with ID
+  navigate('/available-games' );
+};
+
 
     useEffect(() => {
       window.scrollTo(0, 0);
@@ -151,7 +175,7 @@ const MainFlipCoin = () => {
 
         <Button
             // isDisabled={isButtonDisabled}
-          //  isLoading={loading}
+           isLoading={loading}
            onClick={handlePublish}
            text="Publish Game"
            />

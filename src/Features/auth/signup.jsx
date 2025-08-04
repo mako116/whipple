@@ -1,119 +1,110 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { useRegisterUser } from '../../hooks/use.auth';
 import FormInput from '../../components/Input/FormInput';
-import { AuthContext } from '../../context/authContext';
-import AxiosToastError from '../../utlis/AxiosToastError';
+import { useRequest } from '../../hooks/useRequest';
 
 const Register = () => {
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        password: "", 
-        confirmPassword: ""
-    });
-    const {userDetails, setUserDetails} = useContext(AuthContext)
-    
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const navigate = useNavigate();
+  const { makeRequest, loading } = useRequest();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
 
-    const { mutate, isLoading } = useRegisterUser((response) => {
-    if (response.success) {
-        toast.success(response.message)
-       setUserDetails(response?.user); // Save user to context 
-      setFormData({ name: "", email: "", password: "", confirmPassword: "" });
-       navigate('/otp', {
-  state: { email: formData.email }
-});
+  const data = { name, email, phoneNumber, password, passwordConfirm };
+  const isFormValid = Object.values(data).every(el => el.trim() !== '');
 
-    }else{
-       AxiosToastError(response.error)
-       toast.error('failed')
-     }
-    }); 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    // 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+    if (!isFormValid) {
+      return toast.error('All fields are required');
+    }
 
-    const isFormValid = Object.values(formData).every(el => el);
+    if (password !== passwordConfirm) {
+      return toast.error('Passwords do not match');
+    }
 
-    // submit
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (formData.password !== formData.confirmPassword) {
-            toast.error("Passwords do not match");
-            return;
-        }
-        mutate(formData);
-    };
+    try {
+      const res = await makeRequest('/signup', { name, email, password, phoneNumber });
 
-    return (
- 
-        <section className='flex flex-col justify-center items-center min-h-screen bg-blue-100 p-6'>
-              <h2 className='text-3xl font-bold text-center text-gray-800 mb-2'>Create Account</h2>
-            <div className='w-full max-w-md bg-white p-8 rounded-lg shadow-lg'>
-                <p className='text-center text-gray-500 mb-6'>Welcome to Binkeyit. Please register to continue.</p>
+      if (res.error) {
+        return toast.error(res.error);
+      }
 
-                <form className='grid gap-5' onSubmit={handleSubmit}>
-                    <FormInput
-                        label="Name"
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                    />
+      navigate('/login');
+    } catch (err) {
+      console.error(err);
+      toast.error('An unexpected error occurred');
+    }
+  };
 
-                    <FormInput
-                        label="Email"
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                    />
+  return (
+    <section className='flex flex-col justify-center items-center min-h-screen bg-blue-100 p-6'>
+      <h2 className='text-3xl font-bold text-center text-gray-800 mb-2'>Create Account</h2>
+      <div className='w-full max-w-md bg-white p-8 rounded-lg shadow-lg'>
+        <p className='text-center text-gray-500 mb-6'>Welcome to Whipple. Please register to continue.</p>
 
-                    <FormInput
-                        label="Password"
-                        name="password"
-                        type='password'
-                        value={formData.password}
-                        onChange={handleChange}
-                        showPassword={showPassword}
-                        togglePassword={() => setShowPassword(prev => !prev)}
-                    />
+        <form className='grid gap-5' onSubmit={handleSubmit}>
+          <FormInput
+            label="Name"
+            name="name"
+             onChange={(e) => setName(e.target.value)}
+          />
 
-                    <FormInput
-                        label="Confirm Password"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        type='password'
-                        showPassword={showConfirmPassword}
-                        togglePassword={() => setShowConfirmPassword(prev => !prev)}
-                    />
+          <FormInput
+            label="Email"
+            type="email"
+            name="email"
+             onChange={(e) => setEmail(e.target.value)}
+          />
 
-                    <button
-                        type='submit'
-                        disabled={!isFormValid || isLoading}
-                        className={`transition-all cursor-pointer duration-300 ${isFormValid ? "bg-blue-600 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"} text-white py-3 rounded font-semibold tracking-wide`}
-                    >
-                        {isLoading ? "Registering..." : "Register"}
-                    </button>
-                </form>
+          <FormInput
+            label="Phone Number"
+            name="phone"
+             onChange={(e) => setPhoneNumber(e.target.value)}
+          />
 
-                <p className='mt-6 text-center text-sm text-gray-600'>
-                    Already have an account?{" "}
-                    <Link to="/login" className='text-green-700 font-semibold hover:underline'>
-                        Login
-                    </Link>
-                </p>
-            </div>
-        </section>
-    );
+          <FormInput
+            label="Password"
+            name="password"
+             type={showPassword ? 'text' : 'password'}
+            onChange={(e) => setPassword(e.target.value)}
+            showPassword={showPassword}
+            togglePassword={() => setShowPassword(prev => !prev)}
+          />
+
+          <FormInput
+            label="Confirm Password"
+            name="confirmPassword"
+             type={showConfirmPassword ? 'text' : 'password'}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
+            showPassword={showConfirmPassword}
+            togglePassword={() => setShowConfirmPassword(prev => !prev)}
+          />
+
+          <button
+            type='submit'
+            // disabled={!isFormValid || loading}
+            className={`transition-all duration-300 cursor-pointer bg-blue-600 hover:bg-blue-700  text-white py-3 rounded font-semibold tracking-wide`}
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </form>
+
+        <p className='mt-6 text-center text-sm text-gray-600'>
+          Already have an account?{" "}
+          <Link to="/login" className='text-green-700 font-semibold hover:underline'>
+            Login
+          </Link>
+        </p>
+      </div>
+    </section>
+  );
 };
 
 export default Register;

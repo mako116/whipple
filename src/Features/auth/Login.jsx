@@ -1,98 +1,98 @@
-import { useContext, useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useLoginUser } from '../../hooks/use.auth';
 import { AuthContext } from '../../context/authContext';
- import FormInput from '../../components/Input/FormInput';
+import FormInput from '../../components/Input/FormInput';
 import toast from 'react-hot-toast';
-import fetechUserDetails from '../../hooks/use.user';
+import { useRequest } from '../../hooks/useRequest';
 
 const Login = () => {
-  const [data, setData] = useState({
-    email : "" ,
-    password: "",
-  });
-    const {userDetails, setUserDetails} = useContext(AuthContext)
-   const [showPassword, setShowPassword] = useState(false);
-   const navigate = useNavigate();
-  
-const { mutate, isLoading } = useLoginUser(async (response) => {
-      console.log("LOGIN RESPONSE =>", response);
-    if (response.success) {
-        toast.success(response.message)
-        localStorage.setItem('accessToken', response.data.accessToken)
-        localStorage.setItem('refreshToken', response.data.refreshToken)
-        console
-        // Save user details to context
-        const userDetails = await fetechUserDetails()
-        setUserDetails(userDetails.data)
-        // Clear form
-        setData({ email: "", password: "" })
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { loading, makeRequest } = useRequest();
+  const { setUserDetails } = useContext(AuthContext);
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
-        // Navigate to home
-        navigate("/")
-    } else {
-         toast.error(response.message || "Login failed");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    // Basic validation
+    if (!email.trim() || !password.trim()) {
+      toast.error('Please enter email and password');
+      return;
     }
-})
 
+    try {
+      const { error, response } = await makeRequest('/login', {
+        email,
+        password,
+      });
 
-  const handleChange = (e) => {
-        const { name, value } = e.target;
-        setData((prev) => ({ ...prev, [name]: value }));
-    };
+      if (error) {
+        toast.error(typeof error === 'string' ? error : 'Login Failed');
+        return;
+      }
 
+      if (response) {
+         localStorage.setItem('userDetails', JSON.stringify(response.user));
+        localStorage.setItem('authToken', response.token);
 
-  const handleLogin = () => {
-        // e.preventDefault();
-         navigate("/")
-        // mutate(data);
-    };
-  
+         setUserDetails(response.user); 
+ 
+        toast.success('Login successful!');
 
-      const isFormValid = Object.values(data).every(el => el);
+        // Redirect to home or dashboard
+        navigate('/');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('An unexpected error occurred');
+    }
+  };
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-blue-100 p-6">
       <h1 className="text-4xl font-bold mb-8 text-center text-black">Welcome Back</h1>
 
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+      <form onSubmit={handleLogin} className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
         <FormInput
           label="Email"
           type="email"
           name="email"
-          // value={data.email}
-          //  onChange={handleChange}
-           />
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-       <FormInput
-        label="Password"
-        name="password"
-        // value={data.password}
-        type='password'
-        // onChange={handleChange}
-        showPassword={showPassword}
-        togglePassword={() => setShowPassword(prev => !prev)}
+        <FormInput
+          label="Password"
+          name="password"
+          type={showPassword ? 'text' : 'password'}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          showPassword={showPassword}
+          togglePassword={() => setShowPassword((prev) => !prev)}
+          required
         />
 
         <button
-          onClick={handleLogin}
-            // disabled={!isFormValid || isLoading}
-            className={`w-full my-5 transition-all cursor-pointer duration-300 ${isFormValid ? "bg-blue-600 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"} text-white py-3 rounded font-semibold tracking-wide`}
-          >
-          {isLoading ? 'Loading...' : 'Login'}
+          type="submit"
+          disabled={loading}
+          className={`mt-4 w-full cursor-pointer transition-all duration-300 
+            bg-blue-600 hover:bg-blue-700
+            text-white py-3 rounded font-semibold tracking-wide
+            ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+        >
+          {loading ? 'Loading...' : 'Login'}
         </button>
 
         <div className="text-center mt-4 text-sm">
           Don't have an account?{' '}
-          <Link
-          to={'/login'}
-            // onClick={() => navigate('/signup')}
-            className="text-blue-600 font-bold hover:underline"
-          >
+          <Link to="/signup" className="text-blue-600 font-bold hover:underline">
             Sign Up
           </Link>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
