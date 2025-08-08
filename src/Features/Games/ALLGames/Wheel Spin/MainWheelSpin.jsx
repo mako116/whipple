@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, useAnimation } from 'framer-motion';
 import { AuthContext } from '../../../../context/authContext';
 import FormInput from '../../../../components/Input/FormInput';
-
+ 
 const MainWheelSpin = () => {
   const navigate = useNavigate();
   const { userDetails, setUserDetails } = useContext(AuthContext);

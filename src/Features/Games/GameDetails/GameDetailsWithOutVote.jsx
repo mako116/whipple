@@ -1,41 +1,55 @@
  import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../../../context/authContext';
 // import { useGameContext } from '../../../context/AppContext';
 // import HeaderBet from '../../Header/HeaderBet';
 
 const GameDetailsWithOutVote = () => {
   const navigate = useNavigate();
-  const { userDetails } = useContext(AuthContext);
-  const { stake, odds, gameLabel, range, selected, GameName } = userDetails || {};
+   const { userDetails } = useContext(AuthContext);
 
-  // Normalize GameName
-  const normalizedGameName = GameName?.toLowerCase?.();
+   const { gameLabel, range, selected, GameName } = userDetails|| {};
+  const [searchParams] = useSearchParams();
+
+  const name = searchParams.get('name');
+  const stake = Number(searchParams.get('stake'));
+  const odds = searchParams.get('odds');
+  const house = searchParams.get('house');
+  const subcategory = searchParams.get('subcategory');
+  const id = searchParams.get('id');
+
+   const normalizedGameName = name?.toLowerCase?.();
 
   const handleContinue = () => {
     switch (normalizedGameName) {
       case 'color roulette2':
-        navigate('/selected-color-roulette2', {
+        navigate(`/selected-color-roulette2?id=${id}&name=${name}&house=${house}`, {
           state: {
             stake: stake?.toString(),
-            odds,
-            gameLabel,
-            GameName,
-            range,
-            selected,
-          },
+      odds,
+      gameLabel,
+      GameName,
+      range,
+      selected,
+      id,
+      house,
+      name,
+          }, 
         });
         break;
 
       case 'one number spin':
-        navigate('/selected-one-number', {
+        navigate(`/selected-one-number?id=${id}&name=${name}&house=${house}`, {
           state: {
             stake: stake?.toString(),
-            odds,
-            gameLabel,
-            GameName,
-            range,
-            selected,
+      odds,
+      gameLabel,
+      GameName,
+      range,
+      selected,
+      id,
+      house,
+      name,
           },
         });
         break;
@@ -52,7 +66,7 @@ const GameDetailsWithOutVote = () => {
       <div className="p-4 space-y-3 max-w-lg mx-auto bg-gray-100 h-auto">
         <div>
           <h1 className="text-[14px] font-bold">{GameName}</h1>
-          <p className="text-gray-600 text-[14px] font-medium">{`${GameName} - ${gameLabel} (2 from 1-${range})`}</p>
+            {name} - {subcategory|| ''} (2 from 1-{range})
         </div>
 
         <div className="p-4 bg-white rounded-lg">

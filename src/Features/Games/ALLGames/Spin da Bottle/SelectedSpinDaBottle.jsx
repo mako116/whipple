@@ -1,10 +1,12 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../../../../context/authContext';
 import bottleImage from '../../../../assets/icons/Beer-Bottle-Transparent-Image-2.png';
 import Button from '../../../../components/button/gamebutton';
 import WinningModal from '../../../../components/modals/WinningModal';
 import LosingModal from '../../../../components/modals/LosersModal';
+import { useRequest } from '../../../../hooks/useRequest';
+import toast from 'react-hot-toast';
 
 const SelectedSpinBottle = () => {
   const [selectedDirection, setSelectedDirection] = useState(null);
@@ -13,14 +15,21 @@ const SelectedSpinBottle = () => {
   const [success, setSuccess] = useState(null);
   const [visible, setVisible] = useState(false);
   const [spinDegree, setSpinDegree] = useState(0);
+    const [searchParams] = useSearchParams();
+   const id = searchParams.get('id');
+  const name = searchParams.get('name');
+  const stake = Number(searchParams.get('stake'));
+  const odds = searchParams.get('odds');
+  const house = searchParams.get('house');
+  const subcategory = searchParams.get('subcategory');
 
   const spinValue = useRef(0);
   const navigate = useNavigate();
   const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { odds, gameLabel, GameName = 'Spin the Bottle', stake } = userDetails || {};
-
+  const {  gameLabel, GameName = 'Spin the Bottle' } = userDetails || {};
+ const {makeRequest} = useRequest()
   const spinBottle = (direction) => {
-    setIsSpinning(true);
+    setIsSpinning(true); 
     setResult(null);
 
     const randomExtraSpin = Math.floor(Math.random() * 360); // Extra spin to make it more dynamic
@@ -38,17 +47,38 @@ const SelectedSpinBottle = () => {
       // Align the finalSpin to the closest 180 degrees
       finalSpin = finalSpin - (finalSpin % 360) + 180;
     }
-
     spinValue.current = finalSpin;
     setSpinDegree(finalSpin);
+     makeRequest('/play-game', {
+  gameId: id,
+  name,
+  direction: direction.toLowerCase()
+})
+.then(res => {
+  console.log(res);
 
-    setTimeout(() => {
-      setIsSpinning(false);
-      const didWin = Math.random() < 0.5; // Random win/lose
-      setSuccess(didWin);
-      setResult(direction);
-      setVisible(true);
-    }, 3000);
+  if (res.error) {
+    return toast.error(res.error || 'Something went wrong');
+  }
+
+  if (res.response.success) {
+    setSuccess(true);
+    setVisible(true);
+  } else {
+    setSuccess(false);
+    setVisible(true);
+  }
+
+  setIsSpinning(false);
+})
+.catch((e) => {
+  console.log(e);
+  setIsSpinning(false);
+});
+
+    
+
+     
   };
 
   const handleDirectionSelect = (direction) => {

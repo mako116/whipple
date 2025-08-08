@@ -70,18 +70,20 @@ const AvailablePublishedGame = ({showFilter = true, limit}) => {
         result: game.result,
         house: game.creator.name,
         subcategory: game.subcategory,
-      }).toString(),
+      }).toString(), 
     });
   } else if (gameName === "one number spin" || gameName === "color roulette2") {
     navigate({
-      pathname: "/games/details/gamedetails-without-vote",
+      pathname: "/game-details-noVote",
       search: new URLSearchParams({
-        stake: stake.toString(),
-        odds: game.totalOdds,
+        stake: game.stake.toString(),
+        odds: game.odds,
         gameLabel,
-        GameName,
-        range,
-        result: gameLabel,
+        name: game.name, 
+        id: game.id,
+        result: game.result,
+        house: game.creator.name,
+        subcategory: game.subcategory,
       }).toString(),
     });
   } else {

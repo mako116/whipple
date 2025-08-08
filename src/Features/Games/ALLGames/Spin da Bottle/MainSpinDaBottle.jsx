@@ -4,7 +4,9 @@ import { AuthContext } from '../../../../context/authContext';
 import bottleImage from '../../../../assets/icons/BeerBottle.png';
 import Button from '../../../../components/button/gamebutton';
 import FormInput from '../../../../components/Input/FormInput';
-
+import { useRequest } from '../../../../hooks/useRequest';
+import toast from 'react-hot-toast';
+ 
 const SpinBottleMain = () => {
   const spinValue = useRef(0);
   const [selectedDirection, setSelectedDirection] = useState(null);
@@ -13,12 +15,15 @@ const SpinBottleMain = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const [spinDegree, setSpinDegree] = useState(0);
+  const {makeRequest} = useRequest()
 
   const [totalInput, setTotalInput] = useState('');
   const [admissionFee, setAdmissionFee] = useState(0);
   const [stake, setStake] = useState(0);
 
   const { userDetails, setUserDetails } = useContext(AuthContext);
+      const {  odds= '2',  gameLabel, range, GameName  = 'Spin the Bottle' } = userDetails || {};
+
   const navigate = useNavigate();
 
   const spinBottle = (direction) => {
@@ -75,23 +80,47 @@ const SpinBottleMain = () => {
     }
   };
 
-  const handlePublishGame = () => {
-    setLoading(true);
-    const formattedOdds = '2x';
+  
 
-    setTimeout(() => {
-      setUserDetails({
-        ...userDetails,
-        stake: stake.toFixed(2),
-        odds: formattedOdds,
-        gameLabel: 'Spin the Bottle Result',
-        GameName: 'Spin the Bottle',
-        result,
-      });
-      navigate('/available-games');
-      setLoading(false);
-    }, 2000);
-  };
+   const handlePublishGame = async() => {
+      setLoading(true);
+      const formattedOdds = `${odds}x`;
+
+
+      const res = await makeRequest('/create-game', {
+        name: 'Spin The Bottle',
+        spinDirection: result.toLowerCase(),
+        odds,
+        stake
+      })
+
+      if(res.response){
+setLoading(false);
+toast.success('Success', 'Game Created Successfully');
+setTimeout(() => {
+        setUserDetails({
+          stake: stake.toFixed(2),
+            odds: formattedOdds,
+            gameLabel ,
+            GameName,
+           
+            result: gameLabel,
+        });
+        navigate('/available-games')
+
+        setLoading(false);
+      }, 2000);
+      }else if(res.error){
+        setLoading(false);
+        return toast.error('Error', res.error)
+      }else{
+        setLoading(false)
+        return toast.error("Error", 'Server Error. Please check your internet connection')
+      }
+    
+  
+      
+    };
 
    useEffect(() => {
           window.scrollTo(0, 0);

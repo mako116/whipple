@@ -6,7 +6,7 @@ const axiosClient = axios.create({
   headers: {
     'Content-Security-Policy': "default-src 'self'; img-src https://*; script-src 'self';",
   },
-});
+}); 
 
 // Request interceptor
 axiosClient.interceptors.request.use(

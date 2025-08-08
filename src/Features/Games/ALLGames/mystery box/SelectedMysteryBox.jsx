@@ -1,34 +1,59 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../../../../context/authContext';
 import { Package } from 'lucide-react';
 import WinningModal from '../../../../components/modals/WinningModal';
 import LosingModal from '../../../../components/modals/LosersModal';
 import Button from '../../../../components/button/gamebutton';
+import { useRequest } from '../../../../hooks/useRequest';
+import toast from 'react-hot-toast';
 // import WinningModal from '../../../winningmodal/WinningModal';
 // import LosingModal from '../../../loseModal/LoseModal';
 
 const MysterySelect = () => {
   const navigate = useNavigate();
   const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { selected, GameName ,stake,gameLabel} = userDetails || {};
-
+  const { selected, GameName ,gameLabel} = userDetails || {};
+  const {makeRequest, loading} = useRequest();
   const boxes = ['1', '2', '3'];
   const [success, setSuccess] = useState(null);
   const [visible, setModalVisible] = useState(false);
   const [selectedBox, setSelectedBox] = useState(null);
+  const [searchParams] = useSearchParams();
+   const id = searchParams.get('id');
+  const name = searchParams.get('name');
+  const stake = Number(searchParams.get('stake'));
+  const odds = searchParams.get('odds');
+  const house = searchParams.get('house');
+  const subcategory = searchParams.get('subcategory');
 
   const handleBoxPress = (boxLabel) => {
     setSelectedBox(boxLabel);
   };
 
-  const handleRevealBox = () => {
+  const handleRevealBox = async() => {
     if (!selectedBox) {
       alert('Please select a box first!');
       return;
     }
-    setSuccess(selectedBox === selected);
-    setModalVisible(true);
+
+    const res = await makeRequest('/play-game', {
+    name,
+    gameId: id,
+    boxSelected:"box"+selectedBox,
+    });
+
+    if(res.error){
+      return toast.error('Error', res.error);
+    }
+    if(res.response.success){
+      setSuccess(true);
+      setModalVisible(true);
+    }else{
+      setSuccess(false);
+      setModalVisible(true);
+    }
+    setModalVisible(false);
   };
 
   const closeModal = () => {
@@ -46,14 +71,14 @@ const MysterySelect = () => {
   };
 
   return (
-     <div className='bg-gray-100'> 
+     <div className='bg-gray-100 min-h-screen'> 
     <div className="p-6 max-w-4xl mx-auto ">
-      <h1 className="text-2xl font-bold mb-2">{GameName || 'Mystery Box Game'}</h1>
+      <h1 className="text-2xl font-bold mb-2">{name || 'Mystery Box Game'}</h1>
       <p className="mb-4 text-gray-600">Choose the correct box to win!</p>
      
       <div className="bg-gray-100 p-4 rounded-lg mb-6">
-        <h2 className="text-xl font-semibold mb-2">Mystery Box Challenge</h2>
-        <p className="text-sm text-gray-500 mb-4">House Selection Hidden</p>
+        <h2 className="text-xl font-semibold mb-2">{name}</h2>
+        <p className="text-sm text-gray-500 mb-4">House {house}</p>
 
         <div className="flex justify-around mb-4 gap-3">
           {boxes.map((box) => (
@@ -74,6 +99,7 @@ const MysterySelect = () => {
            <Button
            onClick={handleRevealBox}
            text={"Reveal Box"}
+            isLoading={loading}
           />
           
         )}
@@ -82,6 +108,7 @@ const MysterySelect = () => {
           <Button
            onClick={handleLosersGame}
            text={"Back to Loser's Game"}
+           isLoading={loading}
           />
          
         )}
@@ -90,6 +117,7 @@ const MysterySelect = () => {
           <Button
            onClick={()=>navigate("/games")}
            text={"Back to Games"}
+            isLoading={loading}
           />
         
         )}

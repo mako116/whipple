@@ -1,31 +1,37 @@
-// src/pages/ColorRoulettePage.jsx
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ColorRouletteWheel from '../../../../components/ColorRoulette/ColorRoulette';
 import FormInput from '../../../../components/Input/FormInput';
 import { AuthContext } from '../../../../context/authContext';
 import Button from '../../../../components/button/gamebutton';
+import { useRequest } from '../../../../hooks/useRequest';
+import toast from 'react-hot-toast';
 
 export default function ColorRoulettePage() {
   const { setUserDetails } = useContext(AuthContext);
-  const [loading, setLoading] = useState(false);
   const [activeColors, setActiveColors] = useState([]);
   const [stake, setStake] = useState('');
   const [admission, setAdmission] = useState(0);
   const [total, setTotal] = useState(0);
   const [isPublishEnabled, setIsPublishEnabled] = useState(false);
+  const [loading, setLoading] = useState(false); // Loading state for spin
   const navigate = useNavigate();
+  const { makeRequest } = useRequest();
 
   const spinWheel = () => {
+    if (loading) return; // prevent double spins
     setLoading(true);
+
+    // Simulate spin delay and pick colors
     setTimeout(() => {
       const shuffled = ['red', 'blue', 'green', 'yellow'].sort(() => 0.5 - Math.random());
-      setActiveColors(shuffled.slice(0, 2));
+      const pickedColors = shuffled.slice(0, 2);
+      setActiveColors(pickedColors);
       setLoading(false);
     }, 2000);
   };
 
-  const handleStakeChange = e => {
+  const handleStakeChange = (e) => {
     const v = parseFloat(e.target.value) || 0;
     setStake(e.target.value);
     setAdmission(v * 0.25);
@@ -33,25 +39,36 @@ export default function ColorRoulettePage() {
     setIsPublishEnabled(v > 0);
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (activeColors.length !== 2) {
-      alert('Please spin and select two colors.');
+      toast.error('Please spin and select two colors.');
       return;
     }
 
-    setUserDetails({
-      stake,
-      admission,
-      total,
-      activeColors,
-      odds: '2×',
-      gameLabel: activeColors.join(','),
-      GameName: 'color roulette',
+    const parsedTotalOdds = "2.0";
+    const selectedColors = activeColors.join(', ');
+
+    const res = await makeRequest('/create-game', {
+      name: 'Color Roulette',
+      colors: selectedColors.toLowerCase(),
+      stake
     });
 
-    navigate('/available-games');
+    if (res.response) {
+      toast.success('Game Created Successfully');
+      navigate('/available-games');
+
+      setUserDetails({
+        stake: stake.toString(),
+        odds: parsedTotalOdds + 'x',
+        gameLabel: "Color Roulette Game",
+        GameName: "Color Roulette",
+        range: null,
+        selected: selectedColors,
+      });
+    }
   };
-    // Scroll to top on page load
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -62,15 +79,19 @@ export default function ColorRoulettePage() {
 
       {activeColors.length === 2 && (
         <div className="flex justify-center mt-4 space-x-2">
-          {activeColors.map(c => (
+          {activeColors.map((c) => (
             <span
               key={c}
               className="px-4 py-1 text-white rounded font-semibold"
               style={{
                 backgroundColor:
-                  c === 'red' ? '#EA384C' :
-                  c === 'blue' ? '#0EA5E9' :
-                  c === 'green' ? '#22C55E' : '#EAB308',
+                  c === 'red'
+                    ? '#EA384C'
+                    : c === 'blue'
+                    ? '#0EA5E9'
+                    : c === 'green'
+                    ? '#22C55E'
+                    : '#EAB308'
               }}
             >
               {c.charAt(0).toUpperCase() + c.slice(1)}
@@ -85,27 +106,20 @@ export default function ColorRoulettePage() {
         <p className="text-sm">Admission Fee (25%): ₦{admission.toFixed(2)}</p>
         <p className="text-sm font-semibold">Total Amount: ₦{total.toFixed(2)}</p>
         <p className="text-sm">Wallet balance: ₦150,000</p>
-        {/* <button
-          disabled={!isPublishEnabled}
-          onClick={handlePublish}
-          className={`w-full py-2 text-white rounded ${isPublishEnabled ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400'}`}
-        >
-          Publish Game
-        </button> */}
 
-         <Button
-            isDisabled={!isPublishEnabled}
-          //  isLoading={loading}
-           onClick={handlePublish}
-           text="Publish Game"
-           />
+        <Button
+          isDisabled={!isPublishEnabled || loading}
+          isLoading={loading}
+          onClick={handlePublish}
+          text="Publish Game"
+        />
       </div>
 
       <div className="bg-white p-4 mt-6 rounded-lg">
         <h3 className="text-lg font-bold">How It Works</h3>
         <p>
-          Spin to pick two colors. Players bet against your colors with odds of 2×.
-          If they guess any correctly, they win — otherwise, you win.
+          Spin to pick two colors. Players bet against your colors with odds of 2×. If they guess
+          any correctly, they win — otherwise, you win.
         </p>
       </div>
     </div>

@@ -4,20 +4,22 @@ import useSound from 'use-sound';
 import spinSound from '../../../../assets/sounds/spins.wav';
 import { AuthContext } from '../../../../context/authContext';
 import Button from '../../../../components/button/gamebutton';
-
+import { useRequest } from '../../../../hooks/useRequest';
+import toast from 'react-hot-toast';
+ 
 const MainOneNumber = () => {
   const navigate = useNavigate();
   const { userDetails, setUserDetails } = useContext(AuthContext);
-
+const {  odds= '10',  gameLabel, range, GameName  = 'One Number Spin' } = userDetails || {};
+ 
   const [totalInput, setTotalInput] = useState('');
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [winningNumbers, setWinningNumbers] = useState([]);
+   const [winningNumbers, setWinningNumbers] = useState([]);
   const [showResult, setShowResult] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
 
   const [play, { stop }] = useSound(spinSound);
- 
+  const {loading, makeRequest} = useRequest()
 
   const totalAmount = parseFloat(totalInput) || 0;
   const admissionFee = totalAmount * 0.25;
@@ -46,26 +48,23 @@ const MainOneNumber = () => {
     }, spinDuration);
   };
 
-  const handlePublishGame = () => {
-    if (winningNumbers.length === 0) {
-      alert('Please spin the wheel first.');
-      return;
-    }
-
-    setLoading(true);
-    setTimeout(() => {
-      setUserDetails({
-        ...userDetails,
-        stake: stake.toFixed(2),
-        odds: '10x',
-        gameLabel: winningNumbers[0].toString(),
-        GameName: 'One Number Spin',
-        result: winningNumbers[0].toString(),
-      });
-
-      navigate('/available-games');
-      setLoading(false);
+   const handlePublishGame = async() => {
+  
+  
+    const res  = await makeRequest('/create-game', {
+      name: "One Number Spin",
+      odds,
+      winningNumber: winningNumbers[0],
+      stake,
+    })
+    if(res.response.status){
+      toast.success('Success Game Created Successfully');
+       setTimeout(() => {
+      navigate('/available-games')
+      
     }, 2000);
+    }
+    
   };
 
   useEffect(() => {

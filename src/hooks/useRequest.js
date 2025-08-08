@@ -10,7 +10,7 @@ export const useRequest = () => {
 
   const makeRequest = async (url, data) => {
     setLoading(true);
-    setError(''); 
+    setError('');  
     setSuccess(false);
     setResponse(null);
 

@@ -14,7 +14,7 @@ const GameDetails = () => {
   const stake = Number(searchParams.get('stake'));
   const odds = searchParams.get('odds');
   const house = searchParams.get('house');
-  const subcategory = searchParams.get('subcategory');
+  const subcategory = searchParams.get('subcategory'); 
   const id = searchParams.get('id');
 
   const normalizedGameName = name?.toLowerCase?.();

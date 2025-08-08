@@ -72,7 +72,7 @@ export const  quickGames = [
 
   },
   {
-    title: 'mystery box',
+    title: 'Mystery Box Game',
     image: mystry,
     description: 'Three boxes; one chosen as the winning box.',
     variants: ['Three Boxes'],

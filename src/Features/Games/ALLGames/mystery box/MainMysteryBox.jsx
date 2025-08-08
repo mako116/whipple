@@ -5,11 +5,14 @@ import { FiBox } from 'react-icons/fi';
 import { MdOutlineCheck } from 'react-icons/md';
 import FormInput from '../../../../components/Input/FormInput';
 import Button from '../../../../components/button/gamebutton';
+import toast from 'react-hot-toast';
+import { useRequest } from '../../../../hooks/useRequest';
 
 const MainMysteryBox = () => {
   const boxes = ['Box 1', 'Box 2', 'Box 3'];
   const { userDetails, setUserDetails } = useContext(AuthContext);
   const navigate = useNavigate();
+      const {makeRequest} = useRequest();
 
   const [stake, setStake] = useState('');
   const [walletBalance] = useState(10000);
@@ -39,11 +42,28 @@ const MainMysteryBox = () => {
 
   const isPublishEnabled = parsedStake > 0 && selectedBox;
 
-  const handlePublish = () => {
+  const handlePublish = async() => {
     const mainOdd = '3.003x';
     const GameName = 'Mystery Box';
     setLoading(true);
+     const res =    await makeRequest('/create-game', {
+      name: 'Mystery Box Game',
+      odds: 3.003,
+      stake,
+      boxSelected: selectedBox.toLowerCase().replace(/\s+/g, '')
+    })
 
+ if(res.response.status){
+  setLoading(false)
+    setTimeout(() => {
+       navigate('/available-games');
+      setLoading(false);
+    }, 2000);
+  return toast.success('Success Game Created Successfully');
+ }else{
+  setLoading(false);
+  toast.error('Error Server Error')
+ }
     setUserDetails({
       ...userDetails,
       selectedBox,
@@ -53,10 +73,7 @@ const MainMysteryBox = () => {
       gameLabel: `${selectedBox} is the winning box`,
     });
 
-    setTimeout(() => {
-      navigate('/available-games');
-      setLoading(false);
-    }, 2000);
+ 
   };
 
   useEffect(() => {

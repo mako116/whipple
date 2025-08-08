@@ -69,9 +69,9 @@ console.log("Vote screen — id:", id, "name:", name);
         });
         break;
 
-      case "mystery box":
-        navigate("/selected-mystery-box", {
-          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
+      case "mystery box game":
+        navigate(`/selected-mystery-box?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected },
         });
         break;
 
@@ -88,25 +88,25 @@ console.log("Vote screen — id:", id, "name:", name);
         break;
 
       case "wheel spin":
-        navigate("/selected-wheel-spin", {
+        navigate(`/selected-wheel-spin?id=${id}&name=${name}&house=${house}`, {
           state: { stake, odds, id,name,  GameName, },
         }); 
         break;
 
       case "spin the bottle":
-        navigate("/selected-spin-bottle", {
+        navigate(`/selected-spin-bottle?id=${id}&name=${name}&house=${house}`, {
           state: { stake, odds, id,name, gameLabel, GameName, range, selected },
         });
         break;
 
       case "one number spin":
-        navigate("/selected-one-number", {
+        navigate(`/selected-one-number?id=${id}&name=${name}&house=${house}`, {
           state: { stake, odds, id,name, gameLabel, GameName, range, selected },
         });
         break; 
 
       case "color roulette2":
-        navigate("/selected-color-roulette2", {
+        navigate(`/selected-color-roulette2?id=${id}&name=${name}&house=${house}`, {
           state: { stake, odds, id,name, gameLabel, GameName, range, selected },
         });
         break;

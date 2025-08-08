@@ -3,6 +3,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../../context/authContext';
+import { useRequest } from '../../../../hooks/useRequest';
+import toast from 'react-hot-toast';
 
 const colors = [
   { id: 'red', hex: '#EA384C', label: 'Red' },
@@ -10,7 +12,7 @@ const colors = [
   { id: 'green', hex: '#22C55E', label: 'Green' },
   { id: 'yellow', hex: '#EAB308', label: 'Yellow' },
 ];
-
+ 
 const ColorRouletteGame2 = () => {
   const controls = useAnimation();
   const { setUserDetails } = useContext(AuthContext);
@@ -22,7 +24,7 @@ const ColorRouletteGame2 = () => {
   const [walletBalance] = useState(150000);
   const [isPublishEnabled, setIsPublishEnabled] = useState(false);
   const navigate = useNavigate();
-
+    const { makeRequest } = useRequest();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -48,15 +50,33 @@ const ColorRouletteGame2 = () => {
     setLoading(false);
   };
 
-  const handlePublish = () => {
+  const handlePublish = async() => {
     if (!activeColor) {
       alert('Please spin the wheel and select one color.');
       return;
     }
 
     const selectedColorLabel = colors.find((c) => c.id === activeColor)?.label || activeColor;
-
-    navigate('/available-games');
+     const res = await makeRequest("/create-game", {
+      name: "Color Roulette2",
+      colorSpun: activeColor[0],
+      stake,
+    });
+    if (res.response) {
+      setLoading(false)
+      toast.success("Success Game Created Successfully");
+      setTimeout(() => {
+        navigate('/available-games');
+      }, 2000);
+    } else {
+      setLoading(false)
+      if (res.error) {
+        return toast.error("Error", res.error);
+      } else {
+        return toast.error("Error", "Server Error");
+      }
+    }
+    
     setUserDetails({
       stake,
       odds: '4x',

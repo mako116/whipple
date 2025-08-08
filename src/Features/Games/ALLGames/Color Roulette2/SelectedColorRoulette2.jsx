@@ -1,10 +1,12 @@
 /* eslint-disable no-unused-vars */
 import React, { useContext, useEffect, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import WinningModal from '../../../../components/modals/WinningModal';
 import LosingModal from '../../../../components/modals/LosersModal';
 import { AuthContext } from '../../../../context/authContext';
+import { useRequest } from '../../../../hooks/useRequest';
+import toast from 'react-hot-toast';
 
 const colors = [
   { id: 'red', hex: '#EA384C', label: 'Red' },
@@ -12,7 +14,7 @@ const colors = [
   { id: 'green', hex: '#22C55E', label: 'Green' },
   { id: 'yellow', hex: '#EAB308', label: 'Yellow' },
 ];
-
+ 
 const SelectedColorRoulette2 = () => {
   const [selectedColor, setSelectedColor] = useState(null); // User's choice
   const [houseColor, setHouseColor] = useState(null); // House's choice
@@ -20,9 +22,17 @@ const SelectedColorRoulette2 = () => {
   const [success, setSuccess] = useState(null);
   const [visible, setVisible] = useState(false);
   const [result, setResult] = useState('');
-  const { userDetails, setUserDetails } = useContext(AuthContext);
-  const {stake, odds,selected, gameLabel, range, GameName } = userDetails || {};
+      const [searchParams] = useSearchParams();
+   const id = searchParams.get('id');
+  const name = searchParams.get('name');
+  const stake = Number(searchParams.get('stake'));
+  const odds = searchParams.get('odds');
+  const house = searchParams.get('house');
+  const subcategory = searchParams.get('subcategory');
 
+  const { userDetails, setUserDetails } = useContext(AuthContext);
+  const {selected, gameLabel, range, GameName } = userDetails || {};
+const {makeRequest} = useRequest();
   const controls = useAnimation();
   const navigate = useNavigate();
 
@@ -39,13 +49,27 @@ const SelectedColorRoulette2 = () => {
     const houseSelectedColor = colors[randomIndex];
     setHouseColor(houseSelectedColor);
 
-    if (selectedColor && houseSelectedColor.id === selectedColor.id) {
-      setSuccess(true);
-      setResult('win');
-    } else {
-      setSuccess(false);
-      setResult('lose');
-    }
+    makeRequest('/play-game', {
+        gameId: id,
+        name,
+        colorSpun: selected[0]
+       }).then(res=>{
+        console.log(res);
+          setLoading(false);
+          if(res.error){
+            return toast.error('Error', res.error);
+          }
+          if(res.response.success){
+            setSuccess(true);
+             setVisible(true);
+          }else{
+            setSuccess(false)
+             setVisible(true);
+          }
+       }).catch((e)=>{
+        console.log(e);
+        
+       })
 
     setLoading(false);
     setVisible(true);

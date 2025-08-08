@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import WinningModal from "../../../../components/modals/WinningModal";
 import LosingModal from "../../../../components/modals/LosersModal";
 import ColorRouletteWheel from "../../../../components/ColorRoulette/ColorRoulette";
 import { AuthContext } from "../../../../context/authContext";
+import axiosClient from "../../../../utlis/Axios";
+import toast from "react-hot-toast";
+import { useRequest } from "../../../../hooks/useRequest";
 
 const colors = [
   { id: "red", hex: "#EA384C", label: "Red" },
@@ -11,7 +14,7 @@ const colors = [
   { id: "green", hex: "#22C55E", label: "Green" },
   { id: "yellow", hex: "#EAB308", label: "Yellow" },
 ];
-
+ 
 export default function SelectedColorRoulette() {
   const [selectedColor, setSelectedColor] = useState(null);
   const [activeColors, setActiveColors] = useState([]);
@@ -25,6 +28,26 @@ export default function SelectedColorRoulette() {
   const { userDetails, setUserDetails } = useContext(AuthContext);
   const { selected, stake, odds, GameName = "Color Roulette" } = userDetails || {};
 
+   const [game, setGame] = useState(null)
+     const [searchParams] = useSearchParams();
+  const id = searchParams.get('id');
+  const name = searchParams.get('name');
+  const house = searchParams.get('house');
+
+
+    const {makeRequest} = useRequest()
+
+    useEffect(()=>{
+      const getGame = async ()=>{
+        const res = await axiosClient.get(`/get-game/${id}`);
+
+        setGame(res.data.game)
+
+      }
+
+      getGame();
+    }, [])
+
   useEffect(() => {
     if (selected) {
       const match = colors.find((c) => c.id === selected);
@@ -32,29 +55,60 @@ export default function SelectedColorRoulette() {
     }
   }, [selected]);
 
-  const spinWheel = () => {
-    if (loading) return;
-    setLoading(true);
+const spinWheel = () => {
+  if (loading) return;
+  if (!selectedColor) return; // no spin without selection
+  setLoading(true);
 
-    if (wheelRef.current) {
-      wheelRef.current.classList.add("animate-spin-wheel");
-      setTimeout(() => {
-        wheelRef.current.classList.remove("animate-spin-wheel");
-        const shuffled = [...colors].sort(() => 0.5 - Math.random());
-        const selectedColors = shuffled.slice(0, 2).map((c) => c.id);
-        setActiveColors(selectedColors);
-        setLoading(false);
-        setHasSpun(true);
-      }, 2000);
-    }
-  };
+  if (wheelRef.current) {
+    wheelRef.current.classList.add("animate-spin-wheel");
 
-  useEffect(() => {
-    if (!loading && activeColors.length > 0 && selectedColor) {
-      setSuccess(activeColors.includes(selectedColor.id));
-      setModalVisible(true);
-    }
-  }, [activeColors, loading, selectedColor]);
+    setTimeout(() => {
+      wheelRef.current.classList.remove("animate-spin-wheel");
+
+      // Just for UI: pick 2 random house colors (no effect on success)
+      const shuffled = [...colors].sort(() => 0.5 - Math.random());
+      const houseColors = shuffled.slice(0, 2).map(c => c.id);
+      setActiveColors(houseColors);
+      setHasSpun(true);
+
+      // Call API with user selected color to check win/lose
+      makeRequest('/play-game', {
+        gameId: id,
+        name,
+        colorSpun: selectedColor.id,
+      })
+        .then(res => {
+          if (res.error) {
+            toast.error(res.error);
+            setSuccess(false);
+          } else if (res.response && res.response.success) {
+            setSuccess(true);
+          } else {
+            setSuccess(false);
+          }
+          setModalVisible(true);
+        })
+        .catch(e => {
+          toast.error("Something went wrong");
+          setSuccess(false);
+          setModalVisible(true);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }, 2000);
+  }
+};
+
+
+
+  // useEffect(() => {
+  //   if (!loading && activeColors.length > 0 && selectedColor) {
+  //     setSuccess(activeColors.includes(selectedColor.id));
+  //     setModalVisible(true);
+  //   }
+  // }, [activeColors, loading, selectedColor]);
 
   const handleLosersGame = () => {
     const gameLabel = activeColors.join(", ");
@@ -81,13 +135,13 @@ export default function SelectedColorRoulette() {
     <div className="min-h-screen  bg-[#EEF6FF] p-5 font-montserrat">
       {/* Header */}
       <header className="mb-6">
-        <h1 className="text-3xl font-bold">{GameName}</h1>
+        <h1 className="text-3xl font-bold">{name}</h1>
         <p className="text-gray-600">Stake: {stake}</p>
       </header>
 
       {/* Game Intro */}
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-1">{GameName} Game</h2>
+        <h2 className="text-2xl font-semibold mb-1">{game?.creator.name} Game</h2>
         <p className="text-gray-600">Select a color and try to match the House's colors!</p>
       </section>
 
@@ -135,36 +189,37 @@ export default function SelectedColorRoulette() {
           })}
         </div>
 
-        {/* Buttons */}
-        {!success && hasSpun && (
-          <button
-            onClick={handleLosersGame}
-            className="bg-[#0A1931] text-white font-semibold rounded-lg px-8 py-3 mx-auto block"
-          >
-            Play Losers Game
-          </button>
-        )}
+       {/* Buttons */}
+  {!hasSpun && (
+  <button
+    onClick={spinWheel}
+    disabled={!selectedColor || loading}
+    className={`rounded-lg px-8 py-3 mx-auto block text-white font-semibold ${
+      !selectedColor || loading ? "bg-gray-400 cursor-not-allowed" : "bg-[#0A1931] hover:bg-[#102c57]"
+    }`}
+  >
+    {loading ? "Spinning..." : "Spin Wheel"}
+  </button>
+  )}
 
-        {success && (
-          <button
-            onClick={() => navigate("/games")}
-            className="bg-[#0A1931] text-white cursor-pointer font-semibold rounded-lg px-8 py-3 mx-auto block"
-          >
-            Go Back to Games
-          </button>
-        )}
+{hasSpun && success === false && (
+  <button
+    onClick={handleLosersGame}
+    className="bg-[#0A1931] text-white font-semibold rounded-lg px-8 py-3 mx-auto block"
+  >
+    Play Losers Game
+  </button>
+)}
 
-        {!hasSpun && (
-          <button
-            onClick={spinWheel}
-            disabled={!selectedColor || loading}
-            className={`rounded-lg px-8 py-3 mx-auto block text-white font-semibold ${
-              !selectedColor || loading ? "bg-gray-400 cursor-not-allowed" : "bg-[#0A1931] hover:bg-[#102c57]"
-            }`}
-          >
-            {loading ? "Spinning..." : "Spin Wheel"}
-          </button>
-        )}
+{hasSpun && success === true && (
+  <button
+    onClick={() => navigate("/games")}
+    className="bg-[#0A1931] text-white cursor-pointer font-semibold rounded-lg px-8 py-3 mx-auto block"
+  >
+    Go Back to Games
+  </button>
+)}
+
       </section>
 
       {/* How To Win Section */}

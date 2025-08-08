@@ -1,18 +1,18 @@
 import React, { useState, useRef, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useSound from "use-sound";
 import spinSoundFile from "../../../../assets/sounds/spining.wav"; // your sound file path
 import { AuthContext } from "../../../../context/authContext";
 import WinningModal from "../../../../components/modals/WinningModal";
 import LosingModal from "../../../../components/modals/LosersModal";
+import { useRequest } from "../../../../hooks/useRequest";
+import toast from "react-hot-toast";
 
 const SPIN_DURATION = 3000; // spin duration in ms
-
+ 
 export default function SelectedOneNumber() {
   const navigate = useNavigate();
-  const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { odds = "10", GameName = "One Number Spin" } = userDetails || {};
-
+ 
   const [totalInput, setTotalInput] = useState("");
   const [winningNumbers, setWinningNumbers] = useState([]);
   const [showResult, setShowResult] = useState(false);
@@ -20,6 +20,17 @@ export default function SelectedOneNumber() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedNumbers, setSelectedNumbers] = useState([]);
   const [isSpinning, setIsSpinning] = useState(false);
+    const [searchParams] = useSearchParams();
+   const id = searchParams.get('id');
+  const name = searchParams.get('name');
+  const stake = Number(searchParams.get('stake'));
+  const odds = searchParams.get('odds');
+  const house = searchParams.get('house');
+  const subcategory = searchParams.get('subcategory');
+
+ const { userDetails, setUserDetails } = useContext(AuthContext);
+  const { GameName = "One Number Spin" } = userDetails || {};
+  const {makeRequest, loading}  = useRequest()
 
   const lastResultWasWin = useRef(null);
 
@@ -28,8 +39,7 @@ export default function SelectedOneNumber() {
 
   const totalAmount = parseFloat(totalInput) || 0;
   const admissionFee = totalAmount * 0.25;
-  const stake = totalAmount + admissionFee;
-
+ 
   // Number select logic
   function toggleNumber(num) {
     if (selectedNumbers.includes(num)) {
@@ -73,24 +83,26 @@ export default function SelectedOneNumber() {
     setSuccess(null);
   }
 
-  function handleSpinButtonPress() {
-    if (showResult) {
-      if (lastResultWasWin.current) {
-        navigate("/games");
-      } else {
-        setUserDetails({
-          stake,
-          odds,
-          gameLabel: winningNumbers.join(", "),
-          GameName,
-          isGameLost: true,
-        });
-        navigate("/losers-games");
-      }
-    } else {
-      spinWheel();
+ const handleSpinButtonPress = async() => {
+    spinWheel();
+    const res = await makeRequest('/play-game',{
+      gameId: id,
+      name,
+      numberWheeled: selectedNumbers[0]
+    })
+
+    if(res.error){
+      return toast.success('Error', res.error);
     }
-  }
+    if(res.response.success){
+      setSuccess(true);
+    }else if(!res.error && !res.response.success){
+      console.log('ree')
+      setSuccess(false);
+    }
+
+    
+  };
 
   return (
     <>
