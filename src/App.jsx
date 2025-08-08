@@ -36,6 +36,7 @@ import Support from './Features/AccountInfo/support/Support';
 import ChatSearch from './Features/chat/ChatSearch';
 import ChatScreen from './Features/chat/ChatMessage';
 import FaqPage from './Features/HomeSection/FAQ';
+import ProtectedRoute from './UI/protectedRoutes/ProtectedRoutes';
 
 // Lazy-loaded pages
 const Home = lazy(() => import("./Features/HomeSection/Home"));
@@ -72,9 +73,9 @@ function App() {
           <Routes>
             <Route
               element={
-                // <ProtectedRoute>
+                <ProtectedRoute>
                   <AppLayout />
-                // </ProtectedRoute>
+                </ProtectedRoute>
               } 
             >
               <Route path="/" index element={<Home />} />

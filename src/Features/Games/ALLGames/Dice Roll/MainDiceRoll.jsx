@@ -5,6 +5,9 @@ import { AuthContext } from '../../../../context/authContext';
 import useSound from 'use-sound';
 import diceSound from '../../../../assets/sounds/dice.mp3'
 import Button from '../../../../components/button/gamebutton';
+import { useRequest } from '../../../../hooks/useRequest';
+import toast from 'react-hot-toast';
+
 const MainDiceRoll = () => {
   const [diceType, setDiceType] = useState('single');
   const [diceRolled, setDiceRolled] = useState(false);
@@ -12,7 +15,7 @@ const MainDiceRoll = () => {
   const [face1, setFace1] = useState(1);
   const [face2, setFace2] = useState(1);
   const [isRolling, setIsRolling] = useState(false);
-
+  const { makeRequest, loading } = useRequest();
   const walletBalance = 150000;
   const admissionFee = Number(stake) * 0.25 || 0;
   const totalAmount = Number(stake) + admissionFee;
@@ -91,20 +94,25 @@ const MainDiceRoll = () => {
   const isStakeValid = !isNaN(Number(stake)) && Number(stake) > 0;
   const isPublishEnabled = isStakeValid && diceRolled;
 
-  const handlePublish = () => {
+  const handlePublish = async() => {
     const odds = getOdds();
     const gameLabel = diceType === 'double' ? `${face1 + face2}` : `${face1}`;
-
-    setUserDetails({
-      stake: stake.toString(),
-      odds: `${odds}x`,
-      gameLabel,
-      GameName: 'Dice Roll',
-      result: gameLabel,
+     const res = await makeRequest("/create-game", {
+      name: "Dice Roll",
+      odds: getOdds(),
+      stake,
+      diceRolled: gameLabel,
     });
-
-    navigate('/available-games');
-  };
+    
+     if(res.response){
+      toast.success('Game Created Successfully')
+      setTimeout(()=>{
+        navigate("/available-games");
+      }, 1000)
+    }else if(res.error){
+      return toast.error( 'Error', res.error)
+    }
+   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">

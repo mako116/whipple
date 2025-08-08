@@ -36,7 +36,6 @@ console.table({
 
 console.log("Vote screen — id:", id, "name:", name);
 
-   
 
   const navigate = useNavigate();
 
@@ -53,7 +52,7 @@ console.log("Vote screen — id:", id, "name:", name);
 
     switch (normalizedGameName) {
       case "lucky number":
-        navigate("/choose-lucky-numbers", {
+        navigate(`/choose-lucky-numbers?id=${id}&name=${name}&house=${house}`, {
           state: { stake, odds, id,name,house, gameLabel, GameName, range, selected },
         });
         break; 
@@ -65,8 +64,8 @@ console.log("Vote screen — id:", id, "name:", name);
         break;
 
       case "color roulette":
-        navigate("/choose-colorRoulette", {
-          state: { stake, odds, id,name, gameLabel, GameName,  selected },
+        navigate(`/choose-colorRoulette?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name, gameLabel, GameName, house, selected },
         });
         break;
 
@@ -77,14 +76,14 @@ console.log("Vote screen — id:", id, "name:", name);
         break;
 
       case "goal challenge":
-        navigate("/Selected-goal-challenge", {
-          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
+        navigate(`/Selected-goal-challenge?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected },
         });
         break;
 
       case "dice roll":
-        navigate("/selected-dice-roll", {
-          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
+        navigate(`/selected-dice-roll?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name, gameLabel,house, GameName, range, selected },
         });
         break;
 

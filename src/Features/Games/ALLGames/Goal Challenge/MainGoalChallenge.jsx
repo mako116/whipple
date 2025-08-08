@@ -24,7 +24,7 @@ const MainGoalChallenge = () => {
   const GameName = 'Goal Challenge';
   const { setUserDetails } = useContext(AuthContext);
   const navigate = useNavigate();
-
+ 
   const [playShoot] = useSound(shootSound);
 
   const shootBall = () => {

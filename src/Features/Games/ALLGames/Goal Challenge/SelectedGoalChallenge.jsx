@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaArrowLeft, FaBullseye } from 'react-icons/fa';
 import { IoFootball } from 'react-icons/io5';
 import useSound from 'use-sound';
@@ -10,12 +10,20 @@ import goalpost from '../../../../assets/images/games/goal-post.png';
 import field from "../../../../assets/images/games/football-field.png";
 import shootSound from '../../../../assets/sounds/mixkit-hitting-soccer-ball-2112.wav';
 import { AuthContext } from '../../../../context/authContext';
+import axiosClient from '../../../../utlis/Axios';
+import { useRequest } from '../../../../hooks/useRequest';
 
-const SelectedGoalChallenge = () => {
+const SelectedGoalChallenge = () => { 
   const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+
+    const id = searchParams.get('id');
+  const name = searchParams.get('name');
+  const house = searchParams.get('house');
+
     const { userDetails, setUserDetails } = useContext(AuthContext);
     const {gameLabel,  stake, odds, GameName  } = userDetails || {};
-  
+   const {makeRequest} = useRequest()
   const [ballPosition, setBallPosition] = useState({ left: '50%', bottom: '24px' });
   const [selectedGuess, setSelectedGuess] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -23,36 +31,56 @@ const SelectedGoalChallenge = () => {
   const [isMoving, setIsMoving] = useState(false);
   const [playShoot] = useSound(shootSound);
 
+    const [game, setGame] = useState(null)
+useEffect(()=>{
+  const getGame = async ()=>{
+    const res = await axiosClient.get(`/get-game/${id}`);
+    
+    setGame(res.data.game);
+  }
+  getGame()
+}, [])
+
   const handleGuessSelect = (side) => {
     setSelectedGuess(side);
   };
 
-  const shootBall = () => {
-    if (!selectedGuess) {
-      alert('Please select Left, Center, or Right first.');
-      return;
-    }
+ const shootBall = async () => {
+  if (!selectedGuess) {
+    alert('Please select Left, Center, or Right first.');
+    return;
+  }
 
-    let targetLeft = '0%';
+  // Determine target position based on guess
+  let targetLeft = '0%';
+  if (selectedGuess === 'Left') targetLeft = '15%';
+  else if (selectedGuess === 'Center') targetLeft = '47%';
+  else targetLeft = '80%';
 
-    if (selectedGuess === 'Left') targetLeft = '15%';
-    else if (selectedGuess === 'Center') targetLeft = '47%';
-    else targetLeft = '80%';
+  setIsMoving(true);
+  playShoot();
+  setBallPosition({ left: targetLeft, bottom: '170px' });
 
-    setIsMoving(true);
-    playShoot();
-    setBallPosition({ left: targetLeft, bottom: '170px' });
+  // Wait for animation to finish (0.7s)
+  setTimeout(async () => {
+    try {
+      const res = await makeRequest('/play-game', {
+        name: game.name,
+        direction: selectedGuess.toLowerCase(),
+        gameId: game.id,
+      });
 
-    setTimeout(() => {
-      if (selectedGuess === 'Left') {
-        setSuccess(true);
-      } else {
-        setSuccess(false);
-      }
+      const result = res?.data?.isCorrect || false;
+      setSuccess(result); // true if correct, false otherwise
       setVisible(true);
+    } catch (error) {
+      console.error("Error playing game:", error);
+      alert("Something went wrong. Try again.");
+    } finally {
       setIsMoving(false);
-    }, 700);
-  };
+    }
+  }, 700);
+};
 
    const lostGame = () => {
      setUserDetails({
@@ -80,15 +108,14 @@ const SelectedGoalChallenge = () => {
         <button onClick={() => navigate(-1)} className="text-blue-600">
           <FaArrowLeft size={20} />
         </button>
-        <span className="font-bold text-lg">Goal Challenge</span>
-        <span className="text-gray-700 font-medium">₦200</span>
-      </header>
+        <span className="font-bold text-lg">{name}</span>
+       </header>
 
       <div className="space-y-6">
         {/* Game Info */}
         <div className="text-left">
-          <h1 className="text-2xl font-bold mb-1">Goal Challenge</h1>
-          <p className="text-gray-500">House: @user</p>
+          <h1 className="text-2xl font-bold mb-1">{name}</h1>
+          <p className="text-gray-500">House: {house}</p>
         </div>
 
         {/* Game Field */}

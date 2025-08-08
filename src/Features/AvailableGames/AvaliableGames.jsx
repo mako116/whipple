@@ -62,14 +62,13 @@ const AvailablePublishedGame = ({showFilter = true, limit}) => {
     navigate({
       pathname: "/vote",
       search: new URLSearchParams({
-        stake: stake.toString(),
+      stake: game.stake.toString(),
         odds: game.odds,
         gameLabel,
-        GameName,
-        house: game.creator.name,
-        result: gameLabel,
-        id: game.id,
         name: game.name,
+        id: game.id,
+        result: game.result,
+        house: game.creator.name,
         subcategory: game.subcategory,
       }).toString(),
     });

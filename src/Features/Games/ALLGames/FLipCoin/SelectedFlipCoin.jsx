@@ -14,7 +14,7 @@ const SelectedFlipCoin = () => {
 
   const { makeRequest } = useRequest();
   const { userDetails, setUserDetails } = useContext(AuthContext);
-
+ 
   const {
     totalOdds = '2.0',
     gameLabel,
