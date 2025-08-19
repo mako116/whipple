@@ -1,0 +1,70 @@
+import React, { useState } from "react";
+
+export default function TransactionPinScreen({ mode = "set" }) {
+  const [currentPin, setCurrentPin] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+
+  const handleSubmit = () => {
+    if (mode === "change" && currentPin.length !== 4) {
+      alert("Please enter your current 4-digit PIN.");
+      return;
+    }
+    if (newPin.length !== 4) {
+      alert("New PIN must be exactly 4 digits.");
+      return;
+    }
+    if (newPin !== confirmPin) {
+      alert("PIN confirmation does not match.");
+      return;
+    }
+
+    alert(
+      mode === "set"
+        ? "Transaction PIN set successfully!"
+        : "Transaction PIN changed successfully!"
+    );
+
+    setCurrentPin("");
+    setNewPin("");
+    setConfirmPin("");
+  };
+
+  const renderPinInput = (value, onChange, placeholder) => (
+    <input
+      type="password"
+      placeholder={placeholder}
+      maxLength={4}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full bg-gray-50 border border-gray-300 rounded-xl py-3 px-5 text-lg text-center tracking-widest mb-4 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  );
+
+  return (
+    <div className="flex min-h-screen bg-gray-100 justify-center items-center p-5">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+        <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">
+          {mode === "set" ? "Set Transaction PIN" : "Change Transaction PIN"}
+        </h1>
+        <p className="text-gray-600 text-center mb-6">
+          {mode === "set"
+            ? "Create a secure 4-digit PIN for your transactions."
+            : "Update your 4-digit PIN to keep your account secure."}
+        </p>
+
+        {mode === "change" &&
+          renderPinInput(currentPin, setCurrentPin, "Current PIN")}
+        {renderPinInput(newPin, setNewPin, "New PIN")}
+        {renderPinInput(confirmPin, setConfirmPin, "Confirm New PIN")}
+
+        <button
+          onClick={handleSubmit}
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-xl text-lg font-semibold shadow-md transition"
+        >
+          {mode === "set" ? "Set PIN" : "Change PIN"}
+        </button>
+      </div>
+    </div>
+  );
+}

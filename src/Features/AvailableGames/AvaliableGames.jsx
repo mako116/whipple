@@ -4,7 +4,7 @@ import FilterTabPanel from '../../components/FilterTab/FilterTab';
 import { AuthContext } from '../../context/authContext';
 import axiosClient from '../../utlis/Axios';
 
-const AvailablePublishedGame = ({showFilter = true, limit}) => {
+const AvailablePublishedGame = ({showFilter = true, limit , showFilterTop= true}) => {
   const { userDetails } = useContext(AuthContext);
   const { stake, totalOdds, gameLabel, range, selected, GameName } = userDetails || {};
   const [games, setGames] = useState([]);
@@ -109,6 +109,8 @@ const AvailablePublishedGame = ({showFilter = true, limit}) => {
     <div className=" bg-[#EEF6FF]">
       {/* <Header name="Available Games" /> */}
       <div className="px-4 py-6">
+        {showFilterTop &&<>
+        
         <div className="bg-white p-4 rounded-md shadow mb-6">
           <h2 className="text-lg font-semibold mb-2">Game Rules</h2>
           <ul className="space-y-1 text-sm text-gray-700">
@@ -117,6 +119,7 @@ const AvailablePublishedGame = ({showFilter = true, limit}) => {
             <li>Voting rules depend on the specific game category.</li>
           </ul>
         </div>
+        </>}
 
         {showFilter && <FilterTabPanel onTabChange={setSelectedTab} />}
 

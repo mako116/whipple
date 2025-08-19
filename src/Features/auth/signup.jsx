@@ -13,6 +13,7 @@ const Register = () => {
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [referrals, setReferrals] = useState('');
   const navigate = useNavigate();
 
   const data = { name, email, phoneNumber, password, passwordConfirm };
@@ -30,7 +31,7 @@ const Register = () => {
     }
 
     try {
-      const res = await makeRequest('/signup', { name, email, password, phoneNumber });
+      const res = await makeRequest('/signup', { name, email, password, phoneNumber ,referrals});
 
       if (res.error) {
         return toast.error(res.error);
@@ -85,6 +86,11 @@ const Register = () => {
             onChange={(e) => setPasswordConfirm(e.target.value)}
             showPassword={showConfirmPassword}
             togglePassword={() => setShowConfirmPassword(prev => !prev)}
+          />
+           <FormInput
+            label="Referrals (optional)"
+            name="referrals"
+             onChange={(e) => setReferrals(e.target.value)}
           />
 
           <button

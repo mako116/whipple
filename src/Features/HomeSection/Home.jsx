@@ -34,7 +34,7 @@ const HomeScreen = () => {
               See all
             </button>
           </div>
-          <AvailablePublishedGame showFilter={false} limit={3} minHeight="h-[100%]" overflow='overflow-auto' />
+          <AvailablePublishedGame showFilterTop={false} showFilter={false} limit={3} minHeight="h-[100%]" overflow='overflow-auto' />
         </div>
 
         {/* Loser's Games */}
@@ -46,13 +46,13 @@ const HomeScreen = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-bold text-lg">Loser's Games</h2>
             <button
-            //   onClick={() => navigate('/games/LostGames/ViewLostGames')}
+              onClick={() => navigate('/losers-games')}
               className="bg-blue-100 text-blue-800 px-4 py-1 rounded text-sm"
             >
               See all
             </button>
           </div>
-          <LosersGames showFilter={false} minHeight="h-[350px]"  overflow="overflow-auto" />
+          <LosersGames showFilterTop={false} showFilter={false} limit={4} minHeight="h-[100%]"  overflow="overflow-auto" />
         </div>
 
         {/* Features */}

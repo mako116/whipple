@@ -15,6 +15,7 @@ const MENU = [
   { icon: <IoCash />, label: "Withdraw", to: "/withdraw" },
   { icon: <Users />, label: "Refer and Earn", to: "/invite-user" },
   { icon: <MdSecurityUpdate />, label: "Security", to: "/security-password" },
+  { icon: <MdSupport />, label: "Set Transaction Pin", to: "/transaction-pin" },
   { icon: <MdSupport />, label: "Support", to: "/support" },
   { icon: <FiLogOut />, label: "Logout", to: "/logout", isLogout: true },
 ];

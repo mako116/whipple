@@ -25,10 +25,11 @@ export default function Vote() {
  
 const id = searchParams.get("id");
 const name = searchParams.get("name");
-const house = searchParams.get("house");
+const house = searchParams.get("house"); 
  const stake = Number(searchParams.get("stake"));
 const odds = searchParams.get("odds");
- 
+ const losersGame = searchParams.get("losersGame");
+
 console.log('GameName:', GameName); // ✅ now shows the correct value
 console.table({
   id, name, house, GameName, stake, odds, gameLabel, range, selected
@@ -44,12 +45,86 @@ console.log("Vote screen — id:", id, "name:", name);
       alert("Please select an option.");
       return;
     }
+     const normalizedGameName = name?.toLowerCase?.();
 
+        if(losersGame){
+      const res = await makeRequest('/losers-vote', {gameId: id, vote: value})
+       switch (normalizedGameName) {
+      case "lucky number":
+        navigate(`/choose-lucky-numbers?id=${id}&name=${name}&house=${house}&losersGame=${losersGame} `, {
+          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected,losersGame },
+        });
+        break; 
+
+      case "flip the coin":
+        navigate(`/selected-coin-flip?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected,losersGame },
+        });
+        break;
+
+      case "color roulette":
+        navigate(`/choose-colorRoulette?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name, gameLabel, GameName, house, selected,losersGame },
+        });
+        break;
+
+      case "mystery box game":
+        navigate(`/selected-mystery-box?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected,losersGame },
+        });
+        break;
+
+      case "goal challenge":
+        navigate(`/Selected-goal-challenge?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected,losersGame },
+        });
+        break;
+
+      case "dice roll":
+        navigate(`/selected-dice-roll?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name, gameLabel,house, GameName, range, selected,losersGame },
+        });
+        break;
+
+      case "wheel spin":
+        navigate(`/selected-wheel-spin?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name, selected, GameName, losersGame},
+        }); 
+        break;
+
+      case "spin the bottle":
+        navigate(`/selected-spin-bottle?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name, gameLabel,selected, GameName, range, selected,losersGame },
+        });
+        break;
+
+      case "one number spin":
+        navigate(`/selected-one-number?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name, gameLabel, GameName, range, selected,losersGame },
+        });
+        break; 
+
+      case "color roulette2":
+        navigate(`/selected-color-roulette2?id=${id}&name=${name}&house=${house}`, {
+          state: { stake, odds, id,name, gameLabel, GameName, range, selected,losersGame },
+        });
+        break;
+
+        
+      default:
+        console.warn(`[Navigation Error]: Unknown game "${GameName}" selected.`);
+        alert("An error occurred: Unknown game selected. Please try again.");
+        setIsSubmitting(false);
+        return (
+          console.log('userDetails:', userDetails),
+          console.log('GameName:', GameName)
+
+        );
+        
+    }
+    }else{
      const res = await makeRequest('/submit-vote')
-
-    const normalizedGameName = name?.toLowerCase?.();
     setIsSubmitting(true);
-
     switch (normalizedGameName) {
       case "lucky number":
         navigate(`/choose-lucky-numbers?id=${id}&name=${name}&house=${house}`, {
@@ -89,7 +164,7 @@ console.log("Vote screen — id:", id, "name:", name);
 
       case "wheel spin":
         navigate(`/selected-wheel-spin?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name,  GameName, },
+          state: { stake, odds, id,name,  GameName, selected},
         }); 
         break;
 
@@ -126,11 +201,16 @@ console.log("Vote screen — id:", id, "name:", name);
 
     setIsSubmitting(false); 
   };
+}
 
   const handleCancel = () => {
     setIsCancelling(true);
     setTimeout(() => {
+      navigate(-1); // Go back to the previous page
+
+      
       setValue("");
+      
       setIsCancelling(false);
     }, 1000);
   };

@@ -38,7 +38,7 @@ export default function ReferAndEarn() {
             Share Link
           </button>
           <button
-            onClick={() => navigate('/referrals')}
+            onClick={() => navigate('/view-referrals')}
             className="flex-1 bg-blue-500 text-white py-3 rounded hover:bg-blue-600"
           >
             View Referrals

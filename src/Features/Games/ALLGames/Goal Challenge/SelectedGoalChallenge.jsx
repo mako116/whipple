@@ -17,7 +17,7 @@ const SelectedGoalChallenge = () => {
   const navigate = useNavigate();
     const [searchParams] = useSearchParams();
 
-    const id = searchParams.get('id');
+    const id = searchParams.get('id'); 
   const name = searchParams.get('name');
   const house = searchParams.get('house');
 

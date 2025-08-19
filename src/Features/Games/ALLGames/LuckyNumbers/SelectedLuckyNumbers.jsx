@@ -8,51 +8,67 @@ import LosingModal from '../../../../components/modals/LosersModal';
 import { AuthContext } from '../../../../context/authContext';
 
 const SelectedLuckyNumbers = () => {
-   const [searchParams] = useSearchParams();
+    const { userDetails, setUserDetails } = useContext(AuthContext);
+  const {stake, odds,selected, gameLabel, GameName,  totalOdds, range  } = userDetails || {};
+
+  const { loading, makeRequest } = useRequest();
+     const [searchParams] = useSearchParams();
+ 
+     const id = searchParams.get('id'); 
+   const name = searchParams.get('name');
+   const house = searchParams.get('house');
+   const losersGame = searchParams.get('losersGame');
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const {  name, stake, odds, gameLabel, GameName, selected, totalOdds ,range} =
-    location.state || {};
- 
-  // Context with user details
-  const { userDetails, setUserDetails } = useContext(AuthContext);
-  const { id } = userDetails || {};
+  // const {  stake, odds, gameLabel, GameName,  totalOdds, range } =
+  //   location.state || {};
 
-   const { loading, makeRequest } = useRequest();
+  // Context with user details
+
 
   // Local game state
   const [game, setGame] = useState(null);
   const [selectedNumbers, setSelectedNumbers] = useState([]);
   const [success, setSuccess] = useState(null);
   const [visible, setVisible] = useState(false);
+        const [isLosersGame, setIsLosersGame] = useState(false);
 
- 
+  // 👇 if you want to track losers modal separately
+  const [modalVisibled, setModalVisibled] = useState(false);
 
-useEffect(() => {
-  if (!id) {
-    toast.error('Missing game ID');
-    return;
-  }
+  useEffect(()=>{
+ if(losersGame){
+  setIsLosersGame(true);
+ }
+}, [losersGame])
 
-  const fetchGame = async () => {
-    try {
-      const res = await axiosClient.get(`/get-game/${id}`);
-      setGame(res.data.game);
-    } catch (err) {
-      toast.error('Failed to fetch game');
+  useEffect(() => {
+    if (!id) {
+      toast.error('Missing game ID');
+      return;
     }
-  };
 
-  fetchGame();
-}, [id]);
+    const fetchGame = async () => {
+      try {
+        const res = await axiosClient.get(`/get-game/${id}`);
+        setGame(res.data.game);
+      } catch (err) {
+        toast.error('Failed to fetch game');
+      }
+    };
 
+    fetchGame();
+  }, [id]);
 
   const correctNumber = parseInt(selected, 10);
   const parsedTotalOdds = parseFloat(totalOdds);
 
-  const closeModal = () => setVisible(false);
+  const closeModal = () => {
+    setVisible(false);
+    setModalVisibled(false);
+  };
 
   const handleNumberSelect = (number) => {
     if (success !== null) return;
@@ -61,34 +77,80 @@ useEffect(() => {
     setSelectedNumbers([number]); // Only allow one number
   };
 
-  const handleSubmit = async () => {
-    if (selectedNumbers.length === 0) {
-      toast.error('Please select a number before submitting');
-      return;
-    }
+    function getRandomNumber() {
+  return Math.floor(Math.random() * 3) + 1;
+}
 
-    if (!game?.id) {
-      toast.error('Game information missing');
-      return;
-    }
+const losersGameNumber = getRandomNumber(); 
 
-    const res = await makeRequest('/play-game', {
+const handleSubmit = async () => {
+  if (selectedNumbers.length === 0) {
+    toast.error('Please select a number before submitting');
+    return;
+  }
+
+  if (!game?.id) {
+    toast.error('Game information missing');
+    return;
+  }
+
+  let res; // ✅ declare outside so it’s always defined
+
+  // First request
+  if (!losersGame) {
+    res = await makeRequest('/play-game', {
       gameId: game.id,
       choiceNumber: selectedNumbers[0],
       name,
     });
+  }
 
-    if (res.error) {
-      toast.error(res.error);
-      return;
-    }
+  if (res?.error) {
+    toast.error(res.error);
+    return;
+  }
 
+  // If success from first request
+  if (res?.response?.success) {
     setSuccess(res.response.success);
     setVisible(true);
-  };
+  } else {
+    // Otherwise → run losers game request
+    try {
+      const loserRes = await makeRequest('/play-losers-game', {
+        gameId: game.id,
+        choiceNumber: selectedNumbers[0],
+        name,
+      });
+
+      if (loserRes.error) {
+        toast.error(loserRes.error);
+        return;
+      }
+
+      if (loserRes.response?.error) {
+        toast.error(loserRes.response.error);
+        return;
+      }
+
+      if (loserRes.response?.status) {
+        if (selectedNumbers[0] === losersGameNumber) {
+          setSuccess(true);
+        } else {
+          setSuccess(false);
+        }
+        setModalVisibled(true);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Server Error');
+    }
+  }
+};
+
 
   const handleLosers = () => {
-    navigate('/games/LostGames/ViewLostGames');
+    navigate('/losers-games');
     setUserDetails({
       stake: stake?.toString() || '',
       odds,
@@ -113,7 +175,9 @@ useEffect(() => {
       {/* Game Card */}
       <div className="bg-white p-4 rounded-lg shadow mb-6">
         <h2 className="text-lg font-semibold mb-2">Game Details</h2>
-        <p className="text-sm text-gray-500 mb-3">House: @{game?.creator?.name || 'N/A'}</p>
+        <p className="text-sm text-gray-500 mb-3">
+          House: @{game?.creator?.name || 'N/A'}
+        </p>
         <div className="flex justify-between mb-4">
           <div>
             <p className="text-xs text-gray-500">Stake</p>
@@ -160,12 +224,15 @@ useEffect(() => {
 
         {/* Action Buttons */}
         {success === false ? (
-          <button onClick={handleLosers} className="bg-indigo-600 w-full text-white py-3 rounded mb-2">
+          <button
+            onClick={handleLosers}
+            className="bg-indigo-600 w-full text-white py-3 rounded mb-2"
+          >
             Play Losers Game
           </button>
         ) : success === true ? (
           <button
-            onClick={() => navigate('/games/category/category-main')}
+            onClick={() => navigate('/games')}
             className="bg-indigo-600 w-full text-white py-3 rounded mb-2"
           >
             Go to Games
@@ -185,9 +252,11 @@ useEffect(() => {
       <div className="bg-white p-4 rounded-lg mb-6">
         <h3 className="text-base font-semibold text-gray-800 mb-2">How To Win</h3>
         <p className="text-sm text-gray-600 leading-relaxed">
-          Pick the exact <span className="font-semibold text-indigo-600">{selected}</span> number between{' '}
-          <span className="font-semibold text-indigo-600">{gameLabel}</span> the House selected to win. If your
-          selection matches exactly, <span className="text-green-600 font-semibold">you win!</span>
+          Pick the exact{' '}
+          <span className="font-semibold text-indigo-600">{selected}</span> number between{' '}
+          <span className="font-semibold text-indigo-600">{gameLabel}</span> the House selected to
+          win. If your selection matches exactly,{' '}
+          <span className="text-green-600 font-semibold">you win!</span>
         </p>
       </div>
 
@@ -204,7 +273,7 @@ useEffect(() => {
       {success === true && <WinningModal visible={visible} closeModal={closeModal} />}
       {success === false && (
         <LosingModal
-          visible={visible}
+          visible={visible || modalVisibled}
           closeModal={closeModal}
           correctNumber={correctNumber}
           stake={stake}

@@ -6,7 +6,7 @@ import { lazy, Suspense } from 'react';
 import Spinner from './UI/spinner/Spinner';
 import { AuthProvider } from './context/authContext';
 import { Toaster } from 'react-hot-toast';
-
+ 
 // Auth & Onboarding
 import OnboardingScreen from './Features/onBoarding/OnBoardingScreen';
 import Login from './Features/auth/Login';
@@ -37,6 +37,9 @@ import ChatSearch from './Features/chat/ChatSearch';
 import ChatScreen from './Features/chat/ChatMessage';
 import FaqPage from './Features/HomeSection/FAQ';
 import ProtectedRoute from './UI/protectedRoutes/ProtectedRoutes';
+import TransactionPinScreen from './Features/AccountInfo/transactionpin/transactionPage';
+import ReferralListScreen from './Features/AccountInfo/refer/ReferalPage';
+import ReferralTable from './Features/AccountInfo/refer/ReferalPoints';
 
 // Lazy-loaded pages
 const Home = lazy(() => import("./Features/HomeSection/Home"));
@@ -116,12 +119,18 @@ function App() {
               <Route path="/correct-score" element={<CorrectScores />} />
               <Route path="/my-profile" element={<ProfileScreen />} />
               <Route path="/notification" element={<NotificationList />} />
+              {/* Transactions */}
               <Route path="/deposit-page" element={<DepositPage />} />
+               <Route path="/transaction-pin" element={<TransactionPinScreen />} />
+                <Route path="/view-referrals" element={<ReferralListScreen />} />
+                 <Route path="/view-points" element={<ReferralTable />} />
+                 <Route path="/deposit-page" element={<DepositPage />} />
               <Route path="/bank-transfer" element={<BankTransfer />} />
               <Route path="/withdraw" element={<WithdrawPage />} />
               <Route path="/invite-user" element={<ReferAndEarn />} />
               <Route path="/security-password" element={<Security />} />
               <Route path="/support" element={<Support />} />
+              {/*  chats*/}
               <Route path="/chat" element={<ChatSearch />} />
               <Route path="/chat-message/:id" element={<ChatScreen />} />
               <Route path="/faq" element={<FaqPage />} />

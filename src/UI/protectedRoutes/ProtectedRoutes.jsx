@@ -1,24 +1,52 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 function ProtectedRoute({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Use the same token key as in your Login component ('authToken')
   const accessToken = localStorage.getItem("authToken");
 
-  useEffect(() => {
-    if (!accessToken) { 
-      // Redirect to onboarding, pass current location so user can be redirected back after login
-      navigate("/onboarding", { replace: true, state: { from: location } });
+  const inactivityTimeout = useRef(null);
+
+  // logout for inactivity
+  const handleInactivityLogout = () => {
+    localStorage.removeItem("authToken");
+    navigate("/login", { replace: true });
+  };
+
+  // reset inactivity timer
+  const resetTimer = () => {
+    if (inactivityTimeout.current) {
+      clearTimeout(inactivityTimeout.current);
     }
+    // 5 minutes inactivity (300000 ms)
+    inactivityTimeout.current = setTimeout(handleInactivityLogout, 15 * 60 * 1000);
+  };
+
+  useEffect(() => {
+    // No token at all → go to onboarding
+    if (!accessToken) {
+      navigate("/onboarding", { replace: true, state: { from: location } });
+      return;
+    }
+
+    // Listen for activity only if token exists
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+    events.forEach((event) => window.addEventListener(event, resetTimer));
+
+    resetTimer(); // start timer
+
+    return () => {
+      if (inactivityTimeout.current) {
+        clearTimeout(inactivityTimeout.current);
+      }
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+    };
   }, [accessToken, navigate, location]);
 
-  if (!accessToken) return null; // Don't render children if no token
+  if (!accessToken) return null;
 
   return <>{children}</>;
 }
 
 export default ProtectedRoute;
- 
