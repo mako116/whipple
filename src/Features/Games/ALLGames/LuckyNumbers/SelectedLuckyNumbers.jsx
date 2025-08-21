@@ -18,17 +18,12 @@ const SelectedLuckyNumbers = () => {
    const name = searchParams.get('name');
    const house = searchParams.get('house');
    const losersGame = searchParams.get('losersGame');
+     const gameId = searchParams.get('id'); 
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  // const {  stake, odds, gameLabel, GameName,  totalOdds, range } =
-  //   location.state || {};
-
-  // Context with user details
-
-
-  // Local game state
+   
   const [game, setGame] = useState(null);
   const [selectedNumbers, setSelectedNumbers] = useState([]);
   const [success, setSuccess] = useState(null);
@@ -83,76 +78,56 @@ const SelectedLuckyNumbers = () => {
 
 const losersGameNumber = getRandomNumber(); 
 
-const handleSubmit = async () => {
-  if (selectedNumbers.length === 0) {
-    toast.error('Please select a number before submitting');
-    return;
-  }
+  const handleSubmit = async () => {
+    if (selectedNumbers.length === 0) {
+      return alert("Select a number first!");
+    }
 
-  if (!game?.id) {
-    toast.error('Game information missing');
-    return;
-  }
-
-  let res; // ✅ declare outside so it’s always defined
-
-  // First request
-  if (!losersGame) {
-    res = await makeRequest('/play-game', {
-      gameId: game.id,
-      choiceNumber: selectedNumbers[0],
-      name,
-    });
-  }
-
-  if (res?.error) {
-    toast.error(res.error);
-    return;
-  }
-
-  // If success from first request
-  if (res?.response?.success) {
-    setSuccess(res.response.success);
-    setVisible(true);
-  } else {
-    // Otherwise → run losers game request
-    try {
-      const loserRes = await makeRequest('/play-losers-game', {
+    if (!losersGame) {
+      // normal game
+      const res = await makeRequest("/play-game", {
         gameId: game.id,
         choiceNumber: selectedNumbers[0],
         name,
       });
 
-      if (loserRes.error) {
-        toast.error(loserRes.error);
-        return;
-      }
+      if (res.error) return alert(res.error);
 
-      if (loserRes.response?.error) {
-        toast.error(loserRes.response.error);
-        return;
+      if (res.response.success) {
+        setSuccess(true);
+      } else {
+        setSuccess(false);
       }
+      setModalVisibled(true);
+    } else {
+      try {
+        const res = await makeRequest("/play-losers-game", {
+          gameId: game.id,
+          choiceNumber: selectedNumbers[0],
+          name,
+        });
 
-      if (loserRes.response?.status) {
+        if (res.error) return alert(res.error);
+        if (res.response.error) return alert(res.response.error);
+
         if (selectedNumbers[0] === losersGameNumber) {
           setSuccess(true);
         } else {
           setSuccess(false);
         }
         setModalVisibled(true);
+      } catch (error) {
+        console.log(error);
+        return alert("Server Error");
       }
-    } catch (error) {
-      console.error(error);
-      toast.error('Server Error');
     }
-  }
-};
+  };
 
 
   const handleLosers = () => {
     navigate('/losers-games');
     setUserDetails({
-      stake: stake?.toString() || '',
+      stake: stake?.toString(),
       odds,
       gameLabel,
       GameName,

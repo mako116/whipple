@@ -1,7 +1,7 @@
  import axios from 'axios';
 // import { useNavigate } from 'react-router-dom';
 
-const axiosClient = axios.create({
+export const axiosClient = axios.create({
   baseURL: `${import.meta.env.VITE_BASE_URL}/api`,
   headers: {
     'Content-Security-Policy': "default-src 'self'; img-src https://*; script-src 'self';",

@@ -3,3 +3,4 @@ export const formatCurrency = value => {
   const num = parseInt(value.toString(), 10);
   return `₦${num.toLocaleString()}`;
 };
+ 

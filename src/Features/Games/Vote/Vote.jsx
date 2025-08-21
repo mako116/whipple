@@ -1,305 +1,179 @@
-import React, { useContext, useState } from "react";
+ import React, { useContext, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 // import HeaderBet from "../../components/HeaderBet"; // Adjust import path to your setup
 import { AuthContext } from "../../../context/authContext";
 import { useRequest } from "../../../hooks/useRequest";
 
-const PRIMARY_COLOR = "#1A4ED8"; // Deep Blue
+const PRIMARY_COLOR = "#1A4ED8";
 
-const options = [
-  { key: "one", label: "One Winner Takes All" },
-  { key: "two", label: "Three Winners Share Rewards" },
-  { key: "five", label: "Five Winners Share Rewards" },
-];
-
-export default function Vote() {
-     const { userDetails } = useContext(AuthContext);
-
+export default function VoteColorRouletteScreen() {
   const [value, setValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
-  const {  gameLabel, range, selected, GameName } = userDetails || {};
 
-    const {makeRequest, loading} = useRequest()
-       const [searchParams] = useSearchParams();
- 
-const id = searchParams.get("id");
-const name = searchParams.get("name");
-const house = searchParams.get("house"); 
- const stake = Number(searchParams.get("stake"));
-const odds = searchParams.get("odds");
- const losersGame = searchParams.get("losersGame");
+  const { makeRequest, loading } = useRequest();
+  const { userDetails } = useContext(AuthContext);
+  const { gameLabel, range, selected, GameName } = userDetails || {};
 
-console.log('GameName:', GameName); // ✅ now shows the correct value
-console.table({
-  id, name, house, GameName, stake, odds, gameLabel, range, selected
-});
-
-console.log("Vote screen — id:", id, "name:", name);
-
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
+  const name = searchParams.get("name");
+  const losersGame = searchParams.get("losersGame");
+  const stake = searchParams.get("stake");
+  const odds = searchParams.get("odds");
 
   const navigate = useNavigate();
 
-  const handleSubmit = async() => {
+const options = [
+  { key: "one", label: "One Winner Takes All", voteValue: 1 },
+  { key: "two", label: "Three Winners Share Rewards", voteValue: 3 },
+  { key: "five", label: "Five Winners Share Rewards", voteValue: 5 },
+];
+
+
+  const handleSubmit = async () => {
     if (!value) {
       alert("Please select an option.");
       return;
     }
-     const normalizedGameName = name?.toLowerCase?.();
 
-        if(losersGame){
-      const res = await makeRequest('/losers-vote', {gameId: id, vote: value})
-       switch (normalizedGameName) {
-      case "lucky number":
-        navigate(`/choose-lucky-numbers?id=${id}&name=${name}&house=${house}&losersGame=${losersGame} `, {
-          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected,losersGame },
-        });
-        break; 
+    const normalizedGameName = name?.toLowerCase?.();
 
-      case "flip the coin":
-        navigate(`/selected-coin-flip?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected,losersGame },
-        });
-        break;
+    const selectedOption = options.find((o) => o.key === value);
 
-      case "color roulette":
-        navigate(`/choose-colorRoulette?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name, gameLabel, GameName, house, selected,losersGame },
-        });
-        break;
+    if (losersGame) {
+      await makeRequest("/submit-vote", { gameId: id, vote: selectedOption.key });
 
-      case "mystery box game":
-        navigate(`/selected-mystery-box?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected,losersGame },
-        });
-        break;
-
-      case "goal challenge":
-        navigate(`/Selected-goal-challenge?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected,losersGame },
-        });
-        break;
-
-      case "dice roll":
-        navigate(`/selected-dice-roll?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name, gameLabel,house, GameName, range, selected,losersGame },
-        });
-        break;
-
-      case "wheel spin":
-        navigate(`/selected-wheel-spin?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name, selected, GameName, losersGame},
-        }); 
-        break;
-
-      case "spin the bottle":
-        navigate(`/selected-spin-bottle?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name, gameLabel,selected, GameName, range, selected,losersGame },
-        });
-        break;
-
-      case "one number spin":
-        navigate(`/selected-one-number?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name, gameLabel, GameName, range, selected,losersGame },
-        });
-        break; 
-
-      case "color roulette2":
-        navigate(`/selected-color-roulette2?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name, gameLabel, GameName, range, selected,losersGame },
-        });
-        break;
-
-        
-      default:
-        console.warn(`[Navigation Error]: Unknown game "${GameName}" selected.`);
-        alert("An error occurred: Unknown game selected. Please try again.");
-        setIsSubmitting(false);
-        return (
-          console.log('userDetails:', userDetails),
-          console.log('GameName:', GameName)
-
-        );
-        
+      navigate(`/choose-lucky-numbers?id=${gameId}&name=${name}&losersGame=${losersGame}`, {
+        state: { stake, odds, gameLabel, GameName, range, selected, id, name, losersGame: true },
+      });
+      return;
     }
-    }else{
-     const res = await makeRequest('/submit-vote')
-    setIsSubmitting(true);
+
+await makeRequest("/submit-vote", { gameId: id, vote: selectedOption.key });
+
     switch (normalizedGameName) {
       case "lucky number":
-        navigate(`/choose-lucky-numbers?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected },
+        navigate(`/choose-lucky-numbers?id=${id}&name=${name} `, {
+          state: { stake, odds, gameLabel, GameName, range, selected, id, name },
         });
-        break; 
+        break;
 
       case "flip the coin":
-        navigate(`/selected-coin-flip?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected },
+        navigate("/games/availablegames/CoinFLip/confirmFlipCoin", {
+          state: { stake, odds, gameLabel, GameName, range, selected, id, name },
         });
         break;
 
       case "color roulette":
-        navigate(`/choose-colorRoulette?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name, gameLabel, GameName, house, selected },
+        navigate("/games/category/becomethehouse/colorRoulette/selectedColor", {
+          state: { stake, odds, gameLabel, GameName, range, selected, id, name },
         });
         break;
 
       case "mystery box game":
-        navigate(`/selected-mystery-box?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected },
+        navigate("/games/category/becomethehouse/mysteryGame/mysterySelect", {
+          state: { stake, odds, gameLabel, GameName, range, selected, id, name },
         });
         break;
 
       case "goal challenge":
-        navigate(`/Selected-goal-challenge?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name,house, gameLabel, GameName, range, selected },
+        navigate("/games/category/becomethehouse/goal/selectedGoal", {
+          state: { stake, odds, gameLabel, GameName, range, selected, id, name },
         });
         break;
 
       case "dice roll":
-        navigate(`/selected-dice-roll?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name, gameLabel,house, GameName, range, selected },
+        navigate("/games/category/becomethehouse/DiceRoll/selectedDice", {
+          state: { stake, odds, gameLabel, GameName, range, selected, id, name },
         });
         break;
 
       case "wheel spin":
-        navigate(`/selected-wheel-spin?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name,  GameName, selected},
-        }); 
+        navigate("/games/category/becomethehouse/spinwheel/selectedSpin", {
+          state: { stake, odds, gameLabel, GameName, range, selected, id, name },
+        });
         break;
 
       case "spin the bottle":
-        navigate(`/selected-spin-bottle?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
+        navigate("/games/category/becomethehouse/spindabottle/selectedSpins", {
+          state: { stake, odds, gameLabel, GameName, range, selected, id, name },
         });
         break;
 
       case "one number spin":
-        navigate(`/selected-one-number?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
-        });
-        break; 
-
-      case "color roulette2":
-        navigate(`/selected-color-roulette2?id=${id}&name=${name}&house=${house}`, {
-          state: { stake, odds, id,name, gameLabel, GameName, range, selected },
+        navigate("/games/category/becomethehouse/one-number-spin/number-spin-selected", {
+          state: { stake, odds, gameLabel, GameName, range, selected, id, name },
         });
         break;
 
-        
+      case "color roulette2":
+        navigate("/games/category/becomethehouse/colorRoulette2/selectedColor2", {
+          state: { stake, odds, gameLabel, GameName, range, selected, id, name },
+        });
+        break;
+
       default:
         console.warn(`[Navigation Error]: Unknown game "${GameName}" selected.`);
         alert("An error occurred: Unknown game selected. Please try again.");
-        setIsSubmitting(false);
-        return (
-          console.log('userDetails:', userDetails),
-          console.log('GameName:', GameName)
-
-        );
-        
     }
-
-    setIsSubmitting(false); 
   };
-}
 
   const handleCancel = () => {
     setIsCancelling(true);
     setTimeout(() => {
-      navigate(-1); // Go back to the previous page
-
-      
       setValue("");
-      
       setIsCancelling(false);
     }, 1000);
   };
 
   return (
-    <>
-      {/* <HeaderBet arrow amount="200" backgroundColor="#E0EBFF" /> */}
-      <main className="max-w-xl mx-auto p-4 mt-6 space-y-3 bg-white rounded-[10px]">
-        <h1 className="text-[18px] font-semibold text-gray-900">Vote on Winning Distribution</h1>
-        <p className="text-[13px] text-gray-700">Make Your Choice</p>
-        <p className="text-gray-600 text-[13px]">
-          Choose how the winners should be rewarded. Select between one, two, or three winners to receive the prize.
+    <div className="min-h-screen bg-gray-50">
+ 
+      <div className="max-w-xl mx-auto p-6 space-y-6">
+        <h1 className="text-2xl font-bold text-center">Vote on Winning Distribution</h1>
+        <h2 className="text-xl font-semibold text-center text-gray-700">Make Your Choice</h2>
+        <p className="text-gray-600 text-center">
+          Choose how the winners should be rewarded. Select between one, two, or three winners to
+          receive the prize.
         </p>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {options.map((item) => (
-            <label
+            <button
               key={item.key}
-              className={`flex items-center p-4 border rounded cursor-pointer
-                ${
-                  value === item.key
-                    ? "border-blue-600 bg-blue-50"
-                    : "border-gray-300 hover:bg-gray-100"
-                }`}
+              className={`w-full flex items-center p-3 rounded-lg border
+                ${value === item.key ? "bg-blue-500 text-white border-blue-500" : "bg-white border-gray-300"}
+                focus:outline-none`}
+              onClick={() => setValue(item.key)}
             >
-              <input
-                type="radio"
-                name="winnerDistribution"
-                value={item.key}
-                checked={value === item.key}
-                onChange={() => setValue(item.key)}
-                className="mr-4"
+              <div
+                className={`w-5 h-5 rounded-full mr-3 border flex-shrink-0
+                  ${value === item.key ? "bg-white border-white" : "border-gray-400"}`}
               />
-              <span className="text-gray-900">{item.label}</span>
-            </label>
+              <span>{item.label}</span>
+            </button>
           ))}
         </div>
 
-        <div className="flex justify-between space-x-4">
+        <div className="flex space-x-4 mt-6">
           <button
             onClick={handleCancel}
             disabled={isCancelling}
-            className={`flex-1 py-3 rounded cursor-pointer border-2 border-blue-700 font-semibold
-              ${isCancelling ? "text-blue-500 cursor-not-allowed" : "text-blue-700 hover:bg-blue-100"}`}
+            className="flex-1 py-2 px-4 border rounded-lg text-blue-700 font-semibold flex justify-center items-center"
           >
-            {isCancelling ? (
-              <span className="inline-block animate-spin border-4 border-blue-600 border-t-transparent rounded-full w-5 h-5 mx-auto"></span>
-            ) : (
-              "Cancel"
-            )}
+            {isCancelling ? <span className="loader border-t-2 border-b-2 border-blue-700 w-4 h-4 rounded-full animate-spin" /> : "Cancel"}
           </button>
 
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className={`flex-1 py-3 cursor-pointer rounded bg-blue-700 text-white font-semibold
-              ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-800"}`}
+            className="flex-1 py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg flex justify-center items-center"
           >
-             {loading ? (
-    <span className="flex justify-center items-center space-x-2">
-      <svg
-        className="animate-spin h-5 w-5 text-white"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <circle
-          className="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-           ></circle>
-          <path
-           className="opacity-75"
-           fill="currentColor"
-           d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-           ></path>
-           </svg>
-           <span>Publishing...</span>
-           </span>
-             ) : (
-          "Submit Vote"
-            )}
-            
+            {loading ? <span className="loader border-t-2 border-b-2 border-white w-4 h-4 rounded-full animate-spin" /> : "Submit Vote"}
           </button>
         </div>
-      </main>
-    </>
+      </div>
+    </div>
   );
 }

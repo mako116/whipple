@@ -40,6 +40,7 @@ import ProtectedRoute from './UI/protectedRoutes/ProtectedRoutes';
 import TransactionPinScreen from './Features/AccountInfo/transactionpin/transactionPage';
 import ReferralListScreen from './Features/AccountInfo/refer/ReferalPage';
 import ReferralTable from './Features/AccountInfo/refer/ReferalPoints';
+import TransactionsHistory from './Features/AccountInfo/DepositPage/DepositHistory';
 
 // Lazy-loaded pages
 const Home = lazy(() => import("./Features/HomeSection/Home"));
@@ -124,7 +125,7 @@ function App() {
                <Route path="/transaction-pin" element={<TransactionPinScreen />} />
                 <Route path="/view-referrals" element={<ReferralListScreen />} />
                  <Route path="/view-points" element={<ReferralTable />} />
-                 <Route path="/deposit-page" element={<DepositPage />} />
+                 <Route path="/transactions-history" element={<TransactionsHistory />} />
               <Route path="/bank-transfer" element={<BankTransfer />} />
               <Route path="/withdraw" element={<WithdrawPage />} />
               <Route path="/invite-user" element={<ReferAndEarn />} />
