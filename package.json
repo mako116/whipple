@@ -28,7 +28,9 @@
     "react-idle-timer": "^5.7.2",
     "react-lazy-load-image-component": "^1.6.3",
     "react-multi-carousel": "^2.8.6",
+    "react-paystack": "^6.0.0",
     "react-router-dom": "^7.6.2",
+    "react-select": "^5.10.2",
     "react-svg": "^16.3.0",
     "tailwindcss": "^4.1.10",
     "use-sound": "^5.0.0"

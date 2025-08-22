@@ -1,10 +1,12 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { AuthContext } from '../../../context/authContext';
 
 export default function ReferAndEarn() {
   const navigate = useNavigate();
-  const referralCode = 'WHIPPLE123';
+  const { userDetails, userPoint } = useContext(AuthContext);
+  const referralCode = userDetails?.referral_code;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralCode);
@@ -13,8 +15,9 @@ export default function ReferAndEarn() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      <header className="bg-blue-600 text-white py-4 px-6 rounded mb-6">
+      <header className="flex justify-between bg-blue-600 text-white py-4 px-6 rounded mb-6">
         <h1 className="text-xl font-semibold">Refer And Earn</h1>
+        <h1 className="text-xl font-semibold">{userPoint}</h1>
       </header>
 
       <div className="bg-white p-6 rounded-lg shadow space-y-4 max-w-md mx-auto">

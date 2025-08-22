@@ -1,33 +1,43 @@
 import React, { useState } from "react";
+import toast from 'react-hot-toast';
+import { useRequest } from '../../../hooks/useRequest';
+import { AuthContext } from '../../../context/authContext';
 
 export default function TransactionPinScreen({ mode = "set" }) {
   const [currentPin, setCurrentPin] = useState("");
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
+  const { loading, makeRequest } = useRequest();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (mode === "change" && currentPin.length !== 4) {
-      alert("Please enter your current 4-digit PIN.");
+      toast.error("Please enter your current 4-digit PIN.");
       return;
     }
     if (newPin.length !== 4) {
-      alert("New PIN must be exactly 4 digits.");
+      toast.error("New PIN must be exactly 4 digits.");
       return;
     }
     if (newPin !== confirmPin) {
-      alert("PIN confirmation does not match.");
+      toast.error("PIN confirmation does not match.");
       return;
     }
 
-    alert(
-      mode === "set"
-        ? "Transaction PIN set successfully!"
-        : "Transaction PIN changed successfully!"
-    );
+    const { error } = await makeRequest("/transaction-pin", {
+      pin: newPin,
+    });
+  
+      if(error){
+        toast.error('Error', error)
+        return;
+      }
+
+    toast.success("Transaction PIN changed successfully!");
 
     setCurrentPin("");
     setNewPin("");
     setConfirmPin("");
+    return;
   };
 
   const renderPinInput = (value, onChange, placeholder) => (
@@ -62,7 +72,7 @@ export default function TransactionPinScreen({ mode = "set" }) {
           onClick={handleSubmit}
           className="w-full bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-xl text-lg font-semibold shadow-md transition"
         >
-          {mode === "set" ? "Set PIN" : "Change PIN"}
+          {loading ? "Saving..." : "Change PIN"}
         </button>
       </div>
     </div>

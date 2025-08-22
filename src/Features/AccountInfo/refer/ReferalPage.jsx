@@ -1,27 +1,35 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import axiosClient from "../../../utlis/Axios";
 
 export default function ReferralListScreen({ referrals: initialReferrals = [], onRefresh }) {
   // Example data fallback
-  const example = [
-    { id: "1", name: "Ada Lovelace", email: "ada@example.com" },
-    { id: "2", name: "Alan Turing", email: "alan@example.com" },
-    { id: "3", name: "Grace Hopper", email: "grace@example.com" },
-    { id: "4", name: "Katherine Johnson", email: "katherine@example.com" },
-    { id: "5", name: "Margaret Hamilton", email: "margaret@example.com" },
-    { id: "6", name: "Linus Torvalds", email: "linus@example.com" },
-    { id: "7", name: "Dennis Ritchie", email: "dennis@example.com" },
-    { id: "8", name: "Tim Berners-Lee", email: "tim@example.com" },
-    { id: "9", name: "Guido van Rossum", email: "guido@example.com" },
-    { id: "10", name: "James Gosling", email: "james@example.com" },
-  ];
 
   const [query, setQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+   const [loading, setLoading] = useState(false);
+   const [referrals, setReferrals] = useState([]);
 
   const ITEMS_PER_PAGE = 5;
 
-  const referrals = initialReferrals.length ? initialReferrals : example;
+  // const referrals = initialReferrals.length ? initialReferrals : example;
+
+   // Fetch transactions from API
+  const fetchReferral = async () => {
+    try {
+      setLoading(true);
+      const res = await axiosClient.get("/referral-list");
+      setReferrals(res.data.data); // assuming API returns array of Referral
+    } catch (error) {
+      console.error('Error fetching Referral:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReferral();
+  }, []);
 
   // Filtered list
   const filtered = useMemo(() => {

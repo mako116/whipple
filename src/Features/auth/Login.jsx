@@ -9,7 +9,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { loading, makeRequest } = useRequest();
-  const { setUserDetails } = useContext(AuthContext);
+  const { setUserDetails, setUserBalance, setUserPoint } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -36,8 +36,12 @@ const Login = () => {
       if (response) {
          localStorage.setItem('userDetails', JSON.stringify(response.user));
         localStorage.setItem('authToken', response.token);
+        localStorage.setItem('userBalance', response.user.wallet_balance);
+        localStorage.setItem('userPoint', response.user.whipple_point);
 
          setUserDetails(response.user); 
+         setUserBalance(response.user.wallet_balance);
+         setUserPoint(response.user.whipple_point);
  
         toast.success('Login successful!');
 
