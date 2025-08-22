@@ -14,4 +14,4 @@ export const formatCurrency = (amount) => {
         currency: 'NGN',
         minimumFractionDigits: 0, // remove decimal if not needed
       }).format(amount);
-    
+     
