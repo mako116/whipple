@@ -41,6 +41,15 @@ import TransactionPinScreen from './Features/AccountInfo/transactionpin/transact
 import ReferralListScreen from './Features/AccountInfo/refer/ReferalPage';
 import ReferralTable from './Features/AccountInfo/refer/ReferalPoints';
 import TransactionsHistory from './Features/AccountInfo/DepositPage/DepositHistory';
+ import HomePage from './Features/LandingPage/HomePage';
+import TermsAndConditions from './components/components/Terms';
+import PrivacyPolicy from './components/components/Privacy';
+import LegalCompliance from './components/components/LegalComplicance';
+import ResponsibleGaming from './components/components/ResponsibleGaming';
+import RefundPolicy from './components/components/RefundPolicy';
+// import HomePage from './Features/LandingPage/HomePage';
+// import { Landingpage } from './Features/LandingPage/landingpage';
+// import HomePage from './Features/LandingPage/HomePage';
 
 // Lazy-loaded pages
 const Home = lazy(() => import("./Features/HomeSection/Home"));
@@ -68,6 +77,7 @@ const SelectedGoalChallenge = lazy(() => import("./Features/Games/ALLGames/Goal 
 const MainDiceRoll = lazy(() => import("./Features/Games/ALLGames/Dice Roll/MainDiceRoll"));
 const ColorRouletteGame2 = lazy(() => import("./Features/Games/ALLGames/Color Roulette2/MainColorRoulette2"));
 const SelectedColorRoulette2 = lazy(() => import("./Features/Games/ALLGames/Color Roulette2/SelectedColorRoulette2"));
+// const Landingpage = lazy(() => import("./Features/LandingPage/landingpage"));
 
 function App() {
   return (
@@ -76,13 +86,16 @@ function App() {
         <Suspense fallback={<Spinner />}>
           <Routes>
             <Route
+           
               element={
                 <ProtectedRoute>
                   <AppLayout />
-                </ProtectedRoute>
+                 </ProtectedRoute>
               } 
             >
-              <Route path="/" index element={<Home />} />
+               <Route path="/"  element={<Home />} />
+
+              <Route path="/home" index element={<Home />} />
               <Route path="/bet-history" element={<GameBets />} />
               <Route path="/available-games" element={<AvailablePublishedGame />} />
               <Route path="/losers-games" element={<LosersGames />} />
@@ -142,6 +155,13 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/otp" element={<OTPPAge />} />
+          <Route path="/homepage"  element={<HomePage />} />
+          <Route path="/terms-and-conditions"  element={<TermsAndConditions />} />
+          <Route path="/privacy-policy"  element={<PrivacyPolicy />} />
+          <Route path="/legal-compliance-framework"  element={<LegalCompliance />} />
+          <Route path="/fair-play-policy"  element={<ResponsibleGaming />} />
+          <Route path="/refund-policy"  element={<RefundPolicy />} />
+
           </Routes>
         </Suspense>
       </BrowserRouter>

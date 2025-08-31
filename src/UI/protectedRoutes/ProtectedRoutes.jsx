@@ -8,41 +8,35 @@ function ProtectedRoute({ children }) {
 
   const inactivityTimeout = useRef(null);
 
-  // logout for inactivity
   const handleInactivityLogout = () => {
     localStorage.removeItem("authToken");
     navigate("/login", { replace: true });
   };
 
-  // reset inactivity timer
   const resetTimer = () => {
     if (inactivityTimeout.current) {
       clearTimeout(inactivityTimeout.current);
     }
-    // 5 minutes inactivity (300000 ms)
     inactivityTimeout.current = setTimeout(handleInactivityLogout, 15 * 60 * 1000);
   };
 
   useEffect(() => {
-    // No token at all → go to onboarding
+    // redirect if no token
     if (!accessToken) {
-      navigate("/onboarding", { replace: true, state: { from: location } });
+      navigate("/homepage", { replace: true, state: { from: location } });
       return;
     }
 
-    // Listen for activity only if token exists
     const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
     events.forEach((event) => window.addEventListener(event, resetTimer));
 
-    resetTimer(); // start timer
+    resetTimer();
 
     return () => {
-      if (inactivityTimeout.current) {
-        clearTimeout(inactivityTimeout.current);
-      }
+      if (inactivityTimeout.current) clearTimeout(inactivityTimeout.current);
       events.forEach((event) => window.removeEventListener(event, resetTimer));
     };
-  }, [accessToken, navigate, location]);
+   }, [accessToken]);
 
   if (!accessToken) return null;
 
