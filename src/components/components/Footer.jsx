@@ -38,9 +38,7 @@ const Footer = () => {
                 Whipple
               </h2>
             </div>
-            <p className="text-white text-sm mb-4">
-              Get a clear path to your financial goals.
-            </p>
+             
              <p className="text-white text-sm mb-4 space-x-5">
                Customer Support: 
                <Link className='ml-2 underline' to={'/Support@mywhipple.com'}>
