@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaPiggyBank } from "react-icons/fa";       // FontAwesome
 import { IoTrendingDown } from "react-icons/io5";   // Ionicons
 import { MdPayments } from "react-icons/md";        // Material Icons
 import { formatCurrency } from "../../../utlis/FormatAmount";
 import { formatDate } from "../../../utlis/formatDate";
-// import axiosClient from "../../../utlis/Axios";
+import axiosClient from "../../../utlis/Axios";
 
 const TABS = [
   { label: "All", key: "all" },
@@ -19,21 +19,21 @@ export default function TransactionsHistory() {
   const [loading, setLoading] = useState(false);
 
   // Example API fetch (uncomment if needed)
-  // const fetchTransactions = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const res = await axiosClient.get("/transaction-list");
-  //     setTransactions(res.data.data);
-  //   } catch (error) {
-  //     console.error("Error fetching transactions:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const res = await axiosClient.get("/transaction-list");
+      setTransactions(res.data.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // useEffect(() => {
-  //   fetchTransactions();
-  // }, []);
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
 
   const getFilteredTransactions = () => {
     if (activeTab === "all") return transactions;
