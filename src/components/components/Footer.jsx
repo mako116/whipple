@@ -39,13 +39,16 @@ const Footer = () => {
               </h2>
             </div>
              
-             <p className="text-white text-sm mb-4 space-x-5">
+             <div className='flex-wrap flex '>
+              <p className="text-white  text-sm mb-4 space-x-5">
                Customer Support: 
-               <Link className='ml-2 underline' to={'/Support@mywhipple.com'}>
-                 Support@mywhipple.com
-               </Link>
-
             </p>
+           <a  className="ml-2 underline text-[10px] md:text-[13px]" 
+                     href="mailto:Support@mywhipple.com">
+             Support@mywhipple.com
+            </a>
+
+             </div>
           </div>
 
           {/* Footer Sections */}
