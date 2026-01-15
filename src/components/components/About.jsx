@@ -110,16 +110,16 @@ const About = () => {
     },
     {
       icon: AnimatedEyeIcon,
-      title: "Knowledge & Skill Games",
+      title: "Knowledge & Skill Events",
       description:
         "Facilitates knowledge/skill-based games like football trivia, general quiz battles, and more.",
       bgColor: "bg-[#38F5B8]",
     },
     {
       icon: AnimatedStarIcon,
-      title: "Skill-Based Winning",
+      title: "Skill-Based Rewards",
       description:
-        "A social competition platform where knowledge gives users an edge. Only the skilled can win consistently.",
+        "A social competition platform where knowledge gives users an edge. Only the skilled can be rewarded consistently.",
       bgColor: "bg-[#3C00FF]",
     },
     {
@@ -133,7 +133,7 @@ const About = () => {
       icon: FaChartLine,
       title: "Integrated Markets & Quizzes",
       description:
-        "Whipple integrates trivia, quizzes, and forecast markets where real-world skills enhance users’ chances of success.",
+        "Whipple integrates trivia, quizzes, and forecast markets where real-world skills enhance users’ ability of success.",
       bgColor: "bg-red-300",
     },
   ];
@@ -202,7 +202,7 @@ const navigate = useNavigate()
             ⏳ The Challenge
           </h3>
           <p className="text-gray-700 max-w-3xl mx-auto text-center leading-relaxed">
-            You’ve got 5 seconds per question. Need more time? Pay ₦1,000 to
+            You’ve got 5 seconds per question. Need more time? Pay ₦100 to
             extend a question to 1 minute.
           </p>
         </AnimatedSection>
@@ -218,11 +218,11 @@ const navigate = useNavigate()
               removed).
             </li>
             <li>
-              🎁 <strong>40 Points → 25% Discount Boost</strong> – Play against
-              the House or as the House at discounted rates.
+              🎁 <strong>40 Points → 25% Discount Boost</strong> – Compete against
+              the Knight or as the Knight at discounted rates.
             </li>
             <li>
-              🎁 <strong>80 Points → Free Games & Admission</strong> – Unlimited
+              🎁 <strong>80 Points → Free Events & Admission</strong> – Unlimited
               free access for 24 hours.
             </li>
           </ul>
@@ -235,7 +235,7 @@ const navigate = useNavigate()
           </h3>
           <ul className="space-y-2 text-gray-700 max-w-3xl mx-auto">
             <li>🔹 Peer-to-Peer Gaming</li>
-            <li>🔹 Be the House</li>
+            <li>🔹 Be the Knight</li>
             <li>🔹 Skill + Luck Combined</li>
             <li>🔹 Instant Wallet Withdrawals</li>
             <li>🔹 Daily Fresh Quizzes</li>
@@ -268,11 +268,11 @@ const navigate = useNavigate()
               With Whipple’s Skill-Based Quiz system, you don’t just rely on
               chance – you earn your edge.
             </p>
-            <button 
+            {/* <button 
             onClick={handlesign}
             className="px-6 py-3 bg-blue-600 text-white rounded-xl font-unified-bold hover:bg-blue-700 transition">
               👉 Sign Up & Start Playing
-            </button>
+            </button> */}
           </div>
         </AnimatedSection>
       </div>

@@ -25,7 +25,7 @@ const OnboardingScreen = () => {
 
       <div className="flex justify-between items-center p-4 fixed bottom-0 w-full bg-white ">
         <DotNavigation data={onboardingSwiperData} currentIndex={currentIndex} />
-        <BlueButton text="Get Started" onClick={handleNext} />
+        {/* <BlueButton text="Get Started" onClick={handleNext} /> */}
       </div>
     </div>
   );

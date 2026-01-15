@@ -46,12 +46,13 @@ export default function NormalDeposit({ amount, setAmount }) {
     } 
   };  
 
-  const config = {
+ const config = {
       reference: paymentRef,
       email: userDetails?.email,
       amount: amount * 100, //Amount is in the country's lowest currency.
-      publicKey: "pk_test_d4a07c0edb2ca6e77d6c872ee07e55f8af4c3a52",
-  };
+      publicKey: "pk_live_dbd3a64ec324e53eeedf20e282446b860dafaa94",
+      channels: ["card", "bank", "ussd", "mobile_money", "bank_transfer"]
+  };
   
   // you can call this function anything
   const onSuccess = async (res) => {

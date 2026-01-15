@@ -47,6 +47,7 @@ import PrivacyPolicy from './components/components/Privacy';
 import LegalCompliance from './components/components/LegalComplicance';
 import ResponsibleGaming from './components/components/ResponsibleGaming';
 import RefundPolicy from './components/components/RefundPolicy';
+import Pushnotifications from './Pushnotifications';
 // import HomePage from './Features/LandingPage/HomePage';
 // import { Landingpage } from './Features/LandingPage/landingpage';
 // import HomePage from './Features/LandingPage/HomePage';
@@ -85,6 +86,7 @@ function App() {
       <BrowserRouter>
         <Suspense fallback={<Spinner />}>
           <Routes>
+          
             <Route
            
               element={
@@ -155,6 +157,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/otp" element={<OTPPAge />} />
+            <Route path="/whip/pushnotifications" element={<Pushnotifications />} />
           <Route path="/homepage"  element={<HomePage />} />
           <Route path="/terms-and-conditions"  element={<TermsAndConditions />} />
           <Route path="/privacy-policy"  element={<PrivacyPolicy />} />
