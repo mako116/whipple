@@ -27,6 +27,7 @@ const Login = () => {
         email,
         password,
       });
+      console.log(error, response)
 
       if (error) {
         toast.error(typeof error === 'string' ? error : 'Login Failed');

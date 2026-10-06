@@ -95,9 +95,9 @@ function App() {
                  </ProtectedRoute>
               } 
             >
-               <Route path="/"  element={<Home />} />
+               <Route path="/"  element={<HomePage />} />
 
-              <Route path="/home" index element={<Home />} />
+              <Route path="/home" index element={<HomePage />} />
               <Route path="/bet-history" element={<GameBets />} />
               <Route path="/available-games" element={<AvailablePublishedGame />} />
               <Route path="/losers-games" element={<LosersGames />} />
@@ -157,7 +157,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/otp" element={<OTPPAge />} />
-            <Route path="/whip/pushnotifications" element={<Pushnotifications />} />
+            <Route path="/pushnotifications" element={<Pushnotifications />} />
           <Route path="/homepage"  element={<HomePage />} />
           <Route path="/terms-and-conditions"  element={<TermsAndConditions />} />
           <Route path="/privacy-policy"  element={<PrivacyPolicy />} />

@@ -1,6 +1,14 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 import whipple from "../../assets/images/logowhiple.jpeg";
+
+/* Same palette as Hero / About
+   sand #EADCC8 · parchment #F6EEE2 · bark #6B4F3A
+   cocoa #2A1D14 · gold #C9A227 → #E3BE4F */
+
+const linkClass =
+  "text-sm text-[#D9C6AA] hover:text-[#E3BE4F] transition-colors duration-150 " +
+  "focus:outline-none focus-visible:text-[#E3BE4F] focus-visible:underline";
 
 const Footer = () => {
   const footerSections = [
@@ -17,61 +25,61 @@ const Footer = () => {
         { name: "Legal & Compliance Framework", href: "/legal-compliance-framework", isExternal: true },
         { name: "Refund Policy", href: "/refund-policy", isExternal: true },
         { name: "Fair Play Policy", href: "/fair-play-policy" },
-
       ],
     },
   ];
 
   return (
-    <footer className="bg-[#4B95F7] text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Company Info */}
-          <div className="lg:col-span-2">
-            <div className="mb-4 flex gap-2 items-center">
+    <footer className="bg-[#2A1D14] text-[#F6EEE2] font-primary">
+      {/* Thin gold rule ties the footer to the gold CTAs above */}
+      <div className="h-1 bg-gradient-to-r from-[#C9A227] via-[#E3BE4F] to-[#C9A227]" />
+
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-10">
+          {/* Brand + support */}
+          <div className="col-span-2">
+            <div className="mb-5 flex gap-3 items-center">
               <img
                 src={whipple}
-                alt="whipple"
-                className="h-8 w-auto rounded-full"
+                alt="Whipple logo"
+                className="h-10 w-10 object-cover rounded-full ring-2 ring-[#C9A227]"
               />
-              <h2>
-                Whipple
-              </h2>
+              <h2 className="text-2xl font-bold text-[#F6EEE2]">Whipple</h2>
             </div>
-             
-             <div className='flex-wrap flex '>
-              <p className="text-white  text-sm mb-4 space-x-5">
-               Customer Support: 
-            </p>
-           <a  className="ml-2 underline text-[10px] md:text-[13px]" 
-                     href="mailto:Support@mywhipple.com">
-             Support@mywhipple.com
-            </a>
 
-             </div>
+            <p className="text-sm text-[#BFA88A] max-w-xs leading-relaxed">
+              Play quick. Climb higher. Compete for the top.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-sm text-[#BFA88A]">Customer support:</span>
+              <a
+                href="mailto:Support@mywhipple.com"
+                className="text-sm text-[#E3BE4F] underline underline-offset-4 decoration-[#C9A227]/50 hover:decoration-[#E3BE4F] break-all"
+              >
+                Support@mywhipple.com
+              </a>
+            </div>
           </div>
 
-          {/* Footer Sections */}
-          {footerSections.map((section, index) => (
-            <div key={index}>
-              <h4 className="text-white font-semibold mb-4">{section.title}</h4>
-              <ul className="space-y-2">
-                {section.links.map((link, idx) => (
-                  <li key={idx}>
+          {/* Link columns */}
+          {footerSections.map((section) => (
+            <div key={section.title}>
+              <h4 className="text-[#E3BE4F] font-semibold mb-4">{section.title}</h4>
+              <ul className="space-y-3">
+                {section.links.map((link) => (
+                  <li key={link.name}>
                     {link.isExternal ? (
                       <a
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-white hover:underline"
+                        className={linkClass}
                       >
                         {link.name}
                       </a>
                     ) : (
-                      <Link
-                        to={link.href}
-                        className="text-sm text-white hover:underline"
-                      >
+                      <Link to={link.href} className={linkClass}>
                         {link.name}
                       </Link>
                     )}
@@ -83,8 +91,8 @@ const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-blue-800 mt-12 pt-8 text-center">
-          <p className="text-white text-sm">
+        <div className="border-t border-[#4A3627] mt-12 pt-8 text-center">
+          <p className="text-xs sm:text-sm text-[#BFA88A] leading-relaxed">
             Copyright © {new Date().getFullYear()} Whipple is owned and powered
             by Torsade de Pointes Ltd. All Rights Reserved.
           </p>
